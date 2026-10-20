@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="ToolSummoner/ToolSummoner.csproj" />
+  <Project Path="ToolSummoner_Testing/ToolSummoner_Testing.csproj" Id="772cb655-b815-4101-a703-902d03ffdaef" />
 </Solution>

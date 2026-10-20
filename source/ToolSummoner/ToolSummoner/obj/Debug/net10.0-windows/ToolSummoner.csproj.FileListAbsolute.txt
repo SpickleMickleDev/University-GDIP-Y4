@@ -1,0 +1,5 @@
+C:\Users\m2-mcconachie\Downloads\University-GDIP-Y4\source\ToolSummoner\ToolSummoner\obj\Debug\net10.0-windows\ToolSummoner.csproj.AssemblyReference.cache
+C:\Users\m2-mcconachie\Downloads\University-GDIP-Y4\source\ToolSummoner\ToolSummoner\obj\Debug\net10.0-windows\MainWindow.g.cs
+C:\Users\m2-mcconachie\Downloads\University-GDIP-Y4\source\ToolSummoner\ToolSummoner\obj\Debug\net10.0-windows\App.g.cs
+C:\Users\m2-mcconachie\Downloads\University-GDIP-Y4\source\ToolSummoner\ToolSummoner\obj\Debug\net10.0-windows\ToolSummoner_MarkupCompile.cache
+C:\Users\m2-mcconachie\Downloads\University-GDIP-Y4\source\ToolSummoner\ToolSummoner\obj\Debug\net10.0-windows\ToolSummoner_MarkupCompile.lref

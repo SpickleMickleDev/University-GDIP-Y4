@@ -1,0 +1,8 @@
+C:\Users\m2-mcconachie\Downloads\University-GDIP-Y4\source\ToolSummoner\ToolSummoner_Testing\obj\Debug\net10.0\ToolSummoner_Testing.csproj.AssemblyReference.cache
+C:\Users\m2-mcconachie\Downloads\University-GDIP-Y4\source\ToolSummoner\ToolSummoner_Testing\obj\Debug\net10.0\ToolSummoner_Testing.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\m2-mcconachie\Downloads\University-GDIP-Y4\source\ToolSummoner\ToolSummoner_Testing\obj\Debug\net10.0\ToolSummoner_Testing.gentestingplatformentrypointinputcache.cache
+C:\Users\m2-mcconachie\Downloads\University-GDIP-Y4\source\ToolSummoner\ToolSummoner_Testing\obj\Debug\net10.0\ToolSummoner_Testing.genautoregisteredextensionsinputcache.cache
+C:\Users\m2-mcconachie\Downloads\University-GDIP-Y4\source\ToolSummoner\ToolSummoner_Testing\obj\Debug\net10.0\ToolSummoner_Testing.AssemblyInfoInputs.cache
+C:\Users\m2-mcconachie\Downloads\University-GDIP-Y4\source\ToolSummoner\ToolSummoner_Testing\obj\Debug\net10.0\ToolSummoner_Testing.AssemblyInfo.cs
+C:\Users\m2-mcconachie\Downloads\University-GDIP-Y4\source\ToolSummoner\ToolSummoner_Testing\obj\Debug\net10.0\ToolSummoner_Testing.csproj.CoreCompileInputs.cache
+C:\Users\m2-mcconachie\Downloads\University-GDIP-Y4\source\ToolSummoner\ToolSummoner_Testing\obj\Debug\net10.0\ToolSummoner_Testing.sourcelink.json

@@ -1,0 +1,4 @@
+ExampleAdmin,ExamplePassword,Admin
+ExampleUser,ExamplePassword,StandardUser
+bob,marley,Admin
+dwayne,johnson,StandardUser

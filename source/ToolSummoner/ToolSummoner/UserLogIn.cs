@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace ToolSummoner
@@ -10,12 +11,12 @@ namespace ToolSummoner
         private static List<UserDetails> userDetailsList;
         private static bool initialised = false;
 
-        public void InitialiseData()
+        public static void InitialiseData()
         {
             initialised = true;
         }
 
-        public bool ValidateUser(string username, string password, out UserType privileges)
+        public static bool ValidateUser(string username, string password, out UserType privileges)
         {
             bool userValid = false;
             privileges = UserType.StandardUser; // Default value
@@ -25,14 +26,33 @@ namespace ToolSummoner
                 InitialiseData();
             }
 
+            StreamReader sr = new StreamReader(UserDetailsFilePath);
+            string line;
+            while ((line = sr.ReadLine()) != null)
+            {
+                UserDetails user;
+                string[] segments = line.Split(',');
+                user.Username = segments[0].Trim();
+                user.Password = segments[1].Trim();
+                user.Type = UserTypeFromString(segments[2].Trim());
+                if (user.Type != UserType.Invalid)
+                {
+                    userDetailsList.Add(user);
+                } 
+            }    
             // todo: look through all of user details list and check if details match
+            if (userDetailsList.Count <= 0)
+            {
+                throw new Exception("No user details found in the file.");
+            }
         }
 
 
         public enum UserType
         {
             Admin,
-            StandardUser
+            StandardUser,
+            Invalid
         }
         private struct UserDetails
         {
@@ -56,8 +76,36 @@ namespace ToolSummoner
                 case "StandardUser":
                     return UserType.StandardUser;
                 default:
-                    throw new ArgumentException("Invalid user type");
+                    return UserType.Invalid;
             }
         }
     }
 }
+
+
+
+
+// user details file
+// if exists, read and populate list
+// if does not exist, prompt the user to make a new one and give them admin perms?
+// - Require hard-coded backup code to do this. Adds a security failsafe, can give this code to customer on delivery of the product
+
+/*
+Larger system design:
+
+M-V-VM pattern
+    Form .xaml (View)
+    Form .cs (View-model)
+    SoftwareController (Model)
+
+Class diagram
+    SoftwareController (Class) - The module responsible for handling the overall software logic and calling the other modules
+    RobotArmController (Class) - The module responsible for communicating with the Robot Arm, handling the serial port and sending commands
+    UserLogIn (Class)
+    ItemListing (struct)
+    ItemLocation (struct)
+
+Lower-Level designs:
+
+
+*/

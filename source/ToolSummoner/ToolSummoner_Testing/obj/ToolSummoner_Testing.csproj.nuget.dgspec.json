@@ -1,24 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\m2-mcconachie\\Downloads\\University-GDIP-Y4\\source\\ToolSummoner\\ToolSummoner_Testing\\ToolSummoner_Testing.csproj": {}
+    "C:\\Users\\micha\\source\\repos\\University-GDIP-Y4\\source\\ToolSummoner\\ToolSummoner_Testing\\ToolSummoner_Testing.csproj": {}
   },
   "projects": {
-    "C:\\Users\\m2-mcconachie\\Downloads\\University-GDIP-Y4\\source\\ToolSummoner\\ToolSummoner_Testing\\ToolSummoner_Testing.csproj": {
+    "C:\\Users\\micha\\source\\repos\\University-GDIP-Y4\\source\\ToolSummoner\\ToolSummoner_Testing\\ToolSummoner_Testing.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\m2-mcconachie\\Downloads\\University-GDIP-Y4\\source\\ToolSummoner\\ToolSummoner_Testing\\ToolSummoner_Testing.csproj",
+        "projectUniqueName": "C:\\Users\\micha\\source\\repos\\University-GDIP-Y4\\source\\ToolSummoner\\ToolSummoner_Testing\\ToolSummoner_Testing.csproj",
         "projectName": "ToolSummoner_Testing",
-        "projectPath": "C:\\Users\\m2-mcconachie\\Downloads\\University-GDIP-Y4\\source\\ToolSummoner\\ToolSummoner_Testing\\ToolSummoner_Testing.csproj",
-        "packagesPath": "C:\\Users\\m2-mcconachie\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\m2-mcconachie\\Downloads\\University-GDIP-Y4\\source\\ToolSummoner\\ToolSummoner_Testing\\obj\\",
+        "projectPath": "C:\\Users\\micha\\source\\repos\\University-GDIP-Y4\\source\\ToolSummoner\\ToolSummoner_Testing\\ToolSummoner_Testing.csproj",
+        "packagesPath": "C:\\Users\\micha\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\micha\\source\\repos\\University-GDIP-Y4\\source\\ToolSummoner\\ToolSummoner_Testing\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\m2-mcconachie\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\micha\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -45,7 +41,7 @@
           "auditLevel": "low",
           "auditMode": "all"
         },
-        "SdkAnalysisLevel": "10.0.300"
+        "SdkAnalysisLevel": "10.0.400"
       },
       "frameworks": {
         "net10.0": {
@@ -77,7 +73,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.301/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.403/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.CSharp": "(,4.7.32767]",
             "Microsoft.VisualBasic": "(,10.4.32767]",

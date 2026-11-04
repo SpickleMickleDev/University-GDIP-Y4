@@ -5,7 +5,7 @@ using System.IO;
 
 namespace ToolSummoner
 {
-    public class ItemListing
+    public struct ItemListing
     {
         // Will have the following properties:
         // - Unique ID (For logging and spreadsheet purposes)

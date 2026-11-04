@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ToolSummoner
 {
-    public class ItemLocation
+    public struct ItemLocation
     {
         // Separate class to allow for future expansion of location properties (e.g. Multiple stacked items and only taking the top item, having set item shelves for smaller items, etc.)
         public double xCoordinate { get; set; }

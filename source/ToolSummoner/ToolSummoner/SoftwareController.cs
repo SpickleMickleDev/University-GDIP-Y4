@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO.Ports;
 using System.Text;
+using System.Windows.Media.Imaging;
 using System.Xml;
+using System.Xml.Linq;
 
 namespace ToolSummoner
 {
@@ -58,10 +60,26 @@ namespace ToolSummoner
         }
         public ParseErrorCode GetItemsFromFiles()
         {
-            // Read from a file or database to populate the items list
-            // Xml file is to be used for this
-            XmlDocument xmlDoc = new XmlDocument(); // Create an XML document object
-            xmlDoc.Load("yourXMLFile.xml"); // Load the XML document from the specified file
+            // Read list of all items from a .xml file
+
+            // temporary
+            //XmlDocument xmlDoc = new XmlDocument(); // Create xml object
+            //xmlDoc.Load("test.xml"); // Load the XML document from the specified file
+            ItemLocation
+            var doc = XDocument.Load(@"..\test.xml");
+            List<ItemListing> itemList = doc.Root
+                .Descendants("Item")
+                .Select(node => new ItemListing
+                {
+                    uniqueID = node.Element("").Value,
+                    imageFilePAth = node.Element("").Value,
+                    name = node.Element("").Value,
+                    description = node.Element("").Value,
+                    stockRemaining = node.Element("").Value,
+                    ItemLocation location = ItemLocation.ParseFromString(node.Element("").Value)
+                })
+                .ToList();
+
 
             // display error if the file is not found
             // ask user if they would like to create a new file
@@ -70,5 +88,12 @@ namespace ToolSummoner
 
             return ParseErrorCode.None;
         }
+
+        // AddItem() // call UpdateItemDatabase at end. Also do this for every time an item is taken from stock and lock the file down first
+        // need to come up with a threadsafe approach to multiple clients' file reading attempts. If file is taken, wait until available and then attempt action. IF no longer possible, cancel and inform the user
+
+        // RemoveItem() // call UpdateItemDatabase at end
+
+        // UpdateItemDatabase() // add to xml
     }
 }

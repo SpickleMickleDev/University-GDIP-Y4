@@ -3,8 +3,8 @@
   "WorkspaceRootPath": "C:\\Users\\micha\\source\\repos\\University-GDIP-Y4\\source\\ToolSummoner\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{6422B1AE-514D-4681-E5B7-B8926F9DE58A}|ToolSummoner\\ToolSummoner.csproj|c:\\users\\micha\\source\\repos\\university-gdip-y4\\source\\toolsummoner\\toolsummoner\\userlogin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6422B1AE-514D-4681-E5B7-B8926F9DE58A}|ToolSummoner\\ToolSummoner.csproj|solutionrelative:toolsummoner\\userlogin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{772CB655-B815-4101-A703-902D03FFDAEF}|ToolSummoner_Testing\\ToolSummoner_Testing.csproj|c:\\users\\micha\\source\\repos\\university-gdip-y4\\source\\toolsummoner\\toolsummoner\\itemlisting.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{772CB655-B815-4101-A703-902D03FFDAEF}|ToolSummoner_Testing\\ToolSummoner_Testing.csproj|solutionrelative:toolsummoner\\itemlisting.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{6422B1AE-514D-4681-E5B7-B8926F9DE58A}|ToolSummoner\\ToolSummoner.csproj|c:\\users\\micha\\source\\repos\\university-gdip-y4\\source\\toolsummoner\\toolsummoner\\softwarecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -13,10 +13,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{6422B1AE-514D-4681-E5B7-B8926F9DE58A}|ToolSummoner\\ToolSummoner.csproj|c:\\users\\micha\\source\\repos\\university-gdip-y4\\source\\toolsummoner\\toolsummoner\\itemlocation.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{6422B1AE-514D-4681-E5B7-B8926F9DE58A}|ToolSummoner\\ToolSummoner.csproj|solutionrelative:toolsummoner\\itemlocation.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{6422B1AE-514D-4681-E5B7-B8926F9DE58A}|ToolSummoner\\ToolSummoner.csproj|c:\\users\\micha\\source\\repos\\university-gdip-y4\\source\\toolsummoner\\toolsummoner\\itemlisting.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6422B1AE-514D-4681-E5B7-B8926F9DE58A}|ToolSummoner\\ToolSummoner.csproj|solutionrelative:toolsummoner\\itemlisting.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{6422B1AE-514D-4681-E5B7-B8926F9DE58A}|ToolSummoner\\ToolSummoner.csproj|c:\\users\\micha\\source\\repos\\university-gdip-y4\\source\\toolsummoner\\toolsummoner\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -29,6 +25,10 @@
     {
       "AbsoluteMoniker": "D:0:0:{6422B1AE-514D-4681-E5B7-B8926F9DE58A}|ToolSummoner\\ToolSummoner.csproj|c:\\users\\micha\\source\\repos\\university-gdip-y4\\source\\toolsummoner\\toolsummoner\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
       "RelativeMoniker": "D:0:0:{6422B1AE-514D-4681-E5B7-B8926F9DE58A}|ToolSummoner\\ToolSummoner.csproj|solutionrelative:toolsummoner\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{772CB655-B815-4101-A703-902D03FFDAEF}|ToolSummoner_Testing\\ToolSummoner_Testing.csproj|c:\\users\\micha\\source\\repos\\university-gdip-y4\\source\\toolsummoner\\toolsummoner_testing\\toolsummoner_testing.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{772CB655-B815-4101-A703-902D03FFDAEF}|ToolSummoner_Testing\\ToolSummoner_Testing.csproj|solutionrelative:toolsummoner_testing\\toolsummoner_testing.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
     }
   ],
   "DocumentGroupContainers": [
@@ -38,8 +38,20 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 2,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "ToolSummoner_Testing.csproj",
+              "DocumentMoniker": "C:\\Users\\micha\\source\\repos\\University-GDIP-Y4\\source\\ToolSummoner\\ToolSummoner_Testing\\ToolSummoner_Testing.csproj",
+              "RelativeDocumentMoniker": "ToolSummoner_Testing\\ToolSummoner_Testing.csproj",
+              "ToolTip": "C:\\Users\\micha\\source\\repos\\University-GDIP-Y4\\source\\ToolSummoner\\ToolSummoner_Testing\\ToolSummoner_Testing.csproj",
+              "RelativeToolTip": "ToolSummoner_Testing\\ToolSummoner_Testing.csproj",
+              "ViewState": "AgIAAA4AAAAAAAAAAABBwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-11-08T15:19:45.289Z"
+            },
             {
               "$type": "Document",
               "DocumentIndex": 1,
@@ -48,21 +60,22 @@
               "RelativeDocumentMoniker": "ToolSummoner\\SoftwareController.cs",
               "ToolTip": "C:\\Users\\micha\\source\\repos\\University-GDIP-Y4\\source\\ToolSummoner\\ToolSummoner\\SoftwareController.cs",
               "RelativeToolTip": "ToolSummoner\\SoftwareController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwA0AAAAVAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-10-27T16:29:27.128Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 0,
               "Title": "ItemListing.cs",
               "DocumentMoniker": "C:\\Users\\micha\\source\\repos\\University-GDIP-Y4\\source\\ToolSummoner\\ToolSummoner\\ItemListing.cs",
               "RelativeDocumentMoniker": "ToolSummoner\\ItemListing.cs",
               "ToolTip": "C:\\Users\\micha\\source\\repos\\University-GDIP-Y4\\source\\ToolSummoner\\ToolSummoner\\ItemListing.cs",
               "RelativeToolTip": "ToolSummoner\\ItemListing.cs",
-              "ViewState": "AgIAAA4AAAAAAAAAAAAQwAcAAAARAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAYAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-27T16:29:04.838Z"
+              "WhenOpened": "2026-10-27T16:29:04.838Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -78,20 +91,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "UserLogIn.cs",
-              "DocumentMoniker": "C:\\Users\\micha\\source\\repos\\University-GDIP-Y4\\source\\ToolSummoner\\ToolSummoner\\UserLogIn.cs",
-              "RelativeDocumentMoniker": "ToolSummoner\\UserLogIn.cs",
-              "ToolTip": "C:\\Users\\micha\\source\\repos\\University-GDIP-Y4\\source\\ToolSummoner\\ToolSummoner\\UserLogIn.cs",
-              "RelativeToolTip": "ToolSummoner\\UserLogIn.cs",
-              "ViewState": "AgIAAFQAAAAAAAAAAAAAwGcAAAAVAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-26T11:02:42.467Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 4,
               "Title": "AssemblyInfo.cs",
               "DocumentMoniker": "C:\\Users\\micha\\source\\repos\\University-GDIP-Y4\\source\\ToolSummoner\\ToolSummoner\\AssemblyInfo.cs",
               "RelativeDocumentMoniker": "ToolSummoner\\AssemblyInfo.cs",
@@ -103,7 +103,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 5,
               "Title": "MainWindow.xaml",
               "DocumentMoniker": "C:\\Users\\micha\\source\\repos\\University-GDIP-Y4\\source\\ToolSummoner\\ToolSummoner\\MainWindow.xaml",
               "RelativeDocumentMoniker": "ToolSummoner\\MainWindow.xaml",
@@ -114,7 +114,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 3,
               "Title": "MainWindow.xaml.cs",
               "DocumentMoniker": "C:\\Users\\micha\\source\\repos\\University-GDIP-Y4\\source\\ToolSummoner\\ToolSummoner\\MainWindow.xaml.cs",
               "RelativeDocumentMoniker": "ToolSummoner\\MainWindow.xaml.cs",

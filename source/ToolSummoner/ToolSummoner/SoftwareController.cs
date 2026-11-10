@@ -22,6 +22,7 @@ namespace ToolSummoner
         public void Initialise()
         {
             ParseErrorCode error = GetItemsFromFiles();
+            UserLogIn.InitialiseData();
             switch (error)
             {
                 case ParseErrorCode.FileNotFound:

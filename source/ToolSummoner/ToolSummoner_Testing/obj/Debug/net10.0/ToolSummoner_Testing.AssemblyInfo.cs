@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ToolSummoner_Testing")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+48e8857874c958477f768a59c55f23fb21fb4270")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0adbd81ea6daea5c484d35f5d075af995c9a47c0")]
 [assembly: System.Reflection.AssemblyProductAttribute("ToolSummoner_Testing")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ToolSummoner_Testing")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

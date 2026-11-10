@@ -10,6 +10,9 @@
   <ItemGroup>
     <Compile Include="..\ToolSummoner\RobotArmController.cs" Link="RobotArmController.cs" />
     <Compile Include="..\ToolSummoner\SoftwareController.cs" Link="SoftwareController.cs" />
+    <Compile Include="..\ToolSummoner\ItemListing.cs" Link="ItemListing.cs" />
+    <Compile Include="..\ToolSummoner\ItemLocation.cs" Link="ItemLocation.cs" />
+    <Compile Include="..\ToolSummoner\UserLogIn.cs" Link="UserLogIn.cs" />
   </ItemGroup>
 
   <ItemGroup>

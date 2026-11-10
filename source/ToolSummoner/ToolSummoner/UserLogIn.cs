@@ -14,17 +14,6 @@ namespace ToolSummoner
         public static void InitialiseData()
         {
             initialised = true;
-        }
-
-        public static bool ValidateUser(string username, string password, out UserType privileges)
-        {
-            bool userValid = false;
-            privileges = UserType.StandardUser; // Default value
-
-            if (!initialised)
-            {
-                InitialiseData();
-            }
 
             StreamReader sr = new StreamReader(UserDetailsFilePath);
             string line;
@@ -38,13 +27,40 @@ namespace ToolSummoner
                 if (user.Type != UserType.Invalid)
                 {
                     userDetailsList.Add(user);
-                } 
-            }    
-            // todo: look through all of user details list and check if details match
+                }
+            }
             if (userDetailsList.Count <= 0)
             {
                 throw new Exception("No user details found in the file.");
             }
+        }
+
+        public static bool ValidateUser(string username, string password, out UserType privileges)
+        {
+            bool userValid = false;
+            privileges = UserType.StandardUser; // Default value
+
+            if (!initialised)
+            {
+                // todo:
+                // if exists, read and populate list
+                // if does not exist, prompt the user to make a new one and give them admin perms?
+                // - Require hard-coded backup code to do this. Adds a security failsafe, can give this code to customer on delivery of the product
+                InitialiseData();
+            }
+
+            // Look through all of user details list and check if the details match
+            foreach (UserDetails user in userDetailsList)
+            {
+                if (user.Username == username && user.Password == password)
+                {
+                    privileges = user.Type;
+                    userValid = true;
+                    break;
+                }
+            }
+            
+            return userValid;
         }
 
 

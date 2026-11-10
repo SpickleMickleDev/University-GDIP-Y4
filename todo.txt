@@ -1,0 +1,23 @@
+todo:
+- test logger, see where logs end up by default and adjust. Should make the logs folder
+- ensure time format is suitable for logging
+- add config (make only accessible for admin)
+-- item list file path
+-- user details file path
+-- log folder path
+- test item list file, where example doc is loaded and gfinish it all off
+- make error handling display error
+- make front end ui
+- link ui to vm
+- get threads running for different tasks
+
+
+
+Classes completion
+ErrorHandler		PARTIAL
+ItemListing		
+ItemLocation		
+Logger			
+RobotArmController	INCOMPLETE
+SoftwareController	INCOMPLETE
+UserLogIn		

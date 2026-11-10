@@ -15,16 +15,39 @@ namespace ToolSummoner
         private RobotArmController robotArmController;
         private List<ItemListing> items;
 
+        private Thread RobotArmControllerThread;
+        private Thread LoggerThread;
+        // Also have this thread and the UI thread, both can be seen in MainWindow.xaml.cs
+
         public SoftwareController()
         {
-            instance = new SoftwareController();
+            instance = this;
             items = new List<ItemListing>();
         }
 
+        public void RunSoftware()
+        {
+            Initialise();
+        }
+
+
         public void Initialise()
         {
+            // read config, get log folder path, user details path, item details path etc
+            todo here
+
+            // initialise item list from files
             ParseErrorCode error = GetItemsFromFiles();
+
+            // initialise user details
             UserLogIn.InitialiseData();
+
+            // initialise robot arm controller
+            todo here
+
+            // Initialise threads
+
+        todo:  deal with error handling
             switch (error)
             {
                 case ParseErrorCode.FileNotFound:
@@ -32,6 +55,9 @@ namespace ToolSummoner
                     // If logged on as standard user, display an error message and exit the application
                     break;
             }
+
+
+            // Run other threads
         }
 
         public void SelectRobotArmPort(string comPort, int baudRate)
@@ -42,14 +68,7 @@ namespace ToolSummoner
             }
         }
 
-        public bool CheckValidPortConfig(string comPort, int baudRate)
-        {
-            if (!SerialPort.GetPortNames().Contains(comPort)) return false;
-
-            // static supportedBaudRates = new List<int> { 9600, 19200, ... };
-            // if (!supportedBaudRates.Contains(baudRate)) return false;
-            return true;
-        }
+        
 
         public enum ParseErrorCode
         {
@@ -65,18 +84,17 @@ namespace ToolSummoner
             // temporary
             //XmlDocument xmlDoc = new XmlDocument(); // Create xml object
             //xmlDoc.Load("test.xml"); // Load the XML document from the specified file
-            ItemLocation
             var doc = XDocument.Load(@"..\test.xml");
             List<ItemListing> itemList = doc.Root
                 .Descendants("Item")
                 .Select(node => new ItemListing
                 {
-                    uniqueID = node.Element("").Value,
-                    imageFilePAth = node.Element("").Value,
+                    uniqueID = Convert.ToInt32(node.Element("").Value,
+                    imageFilePath = node.Element("").Value,
                     name = node.Element("").Value,
                     description = node.Element("").Value,
                     stockRemaining = node.Element("").Value,
-                    ItemLocation location = ItemLocation.ParseFromString(node.Element("").Value)
+                    location = ItemLocation.ParseFromString(node.Element("").Value) 
                 })
                 .ToList();
 
@@ -88,6 +106,8 @@ namespace ToolSummoner
 
             return ParseErrorCode.None;
         }
+
+
 
         // AddItem() // call UpdateItemDatabase at end. Also do this for every time an item is taken from stock and lock the file down first
         // need to come up with a threadsafe approach to multiple clients' file reading attempts. If file is taken, wait until available and then attempt action. IF no longer possible, cancel and inform the user

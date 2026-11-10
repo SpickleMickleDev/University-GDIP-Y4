@@ -23,23 +23,24 @@ namespace ToolSummoner
 
         public string ToString()
         {
-            return $"";
+            return $"{xCoordinate},{yCoordinate}";
         }
 
         public static ItemLocation ParseFromString(string itemLocationString)
         {
+            ItemLocation itemLocation = new ItemLocation(0, 0);
             try
             {
                 int commaIndex = itemLocationString.IndexOf(',');
-
-
-
+                itemLocation.xCoordinate = double.Parse(itemLocationString.Substring(0, commaIndex));
+                itemLocation.yCoordinate = double.Parse(itemLocationString.Substring(commaIndex + 1));
             }
             catch (Exception e)
             {
                 // handle error somehow
                 // have an error handling class and do a safe shut down and display the error with a user friendly error code?
             }
+            return itemLocation;
         }
     }
 }

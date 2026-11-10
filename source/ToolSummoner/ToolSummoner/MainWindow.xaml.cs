@@ -16,9 +16,48 @@ namespace ToolSummoner
     /// </summary>
     public partial class MainWindow : Window
     {
+        SoftwareController softwareController = new SoftwareController();
+        Thread softwareControllerThread;
+
         public MainWindow()
         {
             InitializeComponent();
+
+            ParameterizedThreadStart threadStart = new ParameterizedThreadStart(softwareController.RunSoftware);
+            softwareControllerThread = new Thread(new ThreadStart(softwareController.RunSoftware));
+            softwareControllerThread.Start();
         }
+
+        public void DisplayError(string message, bool closeApplication)
+        {
+
+        }
+
+        public void ItemSelected()
+        {
+
+        }
+
+        public void PopulateItemList()
+        {
+
+        }
+
+
+
     }
 }
+
+
+
+// M-V-VM
+// Model = Software Controller
+// View-Model = MainWindow.xaml.cs
+// View = MainWindow.xaml
+
+// List of actions and their directions:
+// Populate item list (M->V)
+// Item selected (V->M)
+// Display error (M->V)
+// Admin changes config (V-M)
+// AI chat (V<->M)

@@ -34,5 +34,14 @@ namespace ToolSummoner
                 serialPort.Close();
             }
         }
+
+        public bool GetIsPortConfigValid(string comPort, int baudRate)
+        {
+            if (!SerialPort.GetPortNames().Contains(comPort)) return false;
+
+            // static supportedBaudRates = new List<int> { 9600, 19200, ... };
+            // if (!supportedBaudRates.Contains(baudRate)) return false;
+            return true;
+        }
     }
 }

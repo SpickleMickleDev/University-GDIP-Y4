@@ -14,12 +14,12 @@ namespace ToolSummoner
         // - Description
         // - Stock Remaining
 
-        int uniqueID;
-        string imageFilePath;
-        string name;
-        string description;
-        int stockRemaining;
-        ItemLocation location;
+        public int uniqueID;
+        public string imageFilePath;
+        public string name;
+        public string description;
+        public int stockRemaining;
+        public ItemLocation location;
 
         public ItemListing(int uniqueID, string imageFilePath, string name, string description, int stockRemaining, ItemLocation location)
         {

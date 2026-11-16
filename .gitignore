@@ -1,0 +1,109 @@
+
+# ==========================================
+# Visual Studio
+# ==========================================
+
+.vs/
+**/.vs/
+
+# Visual Studio temporary files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.vspscc
+*.vssscc
+
+# Visual Studio indexing and caches
+*.vsidx
+*.metadata.v10.bin
+*.projects.v10.bin
+*.strings.v10.bin
+*.db-shm
+*.db-wal
+
+# Copilot / AI session data
+**/copilot-chat/
+
+# ==========================================
+# .NET / C# / WPF
+# ==========================================
+
+# Build output
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio generated files
+*.cache
+*.pdb
+*.ilk
+*.log
+
+# NuGet
+*.nupkg
+*.snupkg
+
+# ==========================================
+# Arduino / ESP32
+# ==========================================
+
+# Compiled Arduino files
+*.elf
+*.hex
+*.bin
+*.uf2
+*.map
+
+# Arduino temporary/build directories
+build/
+cmake-build-*/
+
+# ==========================================
+# Operating system
+# ==========================================
+
+# Windows
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# ==========================================
+# Editors
+# ==========================================
+
+# VS Code
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/tasks.json
+
+# JetBrains
+.idea/
+*.iml
+
+# ==========================================
+# Temporary files
+# ==========================================
+
+*.tmp
+*.temp
+*.bak
+*.old
+*.swp
+*.swo
+*~
+
+# ==========================================
+# Local environment / secrets
+# ==========================================
+
+.env
+.env.*
+!.env.example
+secrets.json

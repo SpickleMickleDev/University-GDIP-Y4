@@ -16,35 +16,10 @@ namespace ToolSummoner
     /// </summary>
     public partial class MainWindow : Window
     {
-        SoftwareController softwareController = new SoftwareController();
-        Thread softwareControllerThread;
-
         public MainWindow()
         {
             InitializeComponent();
-
-            ParameterizedThreadStart threadStart = new ParameterizedThreadStart(softwareController.RunSoftware);
-            softwareControllerThread = new Thread(new ThreadStart(softwareController.RunSoftware));
-            softwareControllerThread.Start();
         }
-
-        public void DisplayError(string message, bool closeApplication)
-        {
-
-        }
-
-        public void ItemSelected()
-        {
-
-        }
-
-        public void PopulateItemList()
-        {
-
-        }
-
-
-
     }
 }
 

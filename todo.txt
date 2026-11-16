@@ -1,4 +1,4 @@
-todo:
+t odo:
 - test logger, see where logs end up by default and adjust. Should make the logs folder
 - ensure time format is suitable for logging
 - add config (make only accessible for admin)

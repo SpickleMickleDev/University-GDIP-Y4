@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<Items>
+  <Item>
+	<UniqueId>1</UniqueId>
+	<ImageFilePath>Assets/Tools/Bolt.png</ImageFilePath>
+	<Name>Bolt</Name>
+	<Description>Steel bolt for fastening components together.</Description>
+	<StockRemaining>25</StockRemaining>
+	<Location>
+	  <XCoordinate>1</XCoordinate>
+	  <YCoordinate>1</YCoordinate>
+	</Location>
+  </Item>
+  <Item>
+	<UniqueId>2</UniqueId>
+	<ImageFilePath>Assets/Tools/Box_cutter.png</ImageFilePath>
+	<Name>Box Cutter</Name>
+	<Description>Retractable utility knife for cutting cardboard and packaging.</Description>
+	<StockRemaining>10</StockRemaining>
+	<Location>
+	  <XCoordinate>2</XCoordinate>
+	  <YCoordinate>1</YCoordinate>
+	</Location>
+  </Item>
+  <Item>
+	<UniqueId>3</UniqueId>
+	<ImageFilePath>Assets/Tools/Brush.png</ImageFilePath>
+	<Name>Brush</Name>
+	<Description>General-purpose brush for cleaning and applying materials.</Description>
+	<StockRemaining>12</StockRemaining>
+	<Location>
+	  <XCoordinate>3</XCoordinate>
+	  <YCoordinate>1</YCoordinate>
+	</Location>
+  </Item>
+  <Item>
+	<UniqueId>4</UniqueId>
+	<ImageFilePath>Assets/Tools/Hammer.png</ImageFilePath>
+	<Name>Hammer</Name>
+	<Description>Hand tool for driving nails and light demolition work.</Description>
+	<StockRemaining>8</StockRemaining>
+	<Location>
+	  <XCoordinate>1</XCoordinate>
+	  <YCoordinate>2</YCoordinate>
+	</Location>
+  </Item>
+  <Item>
+	<UniqueId>5</UniqueId>
+	<ImageFilePath>Assets/Tools/Nut.png</ImageFilePath>
+	<Name>Nut</Name>
+	<Description>Threaded fastener designed to secure a matching bolt.</Description>
+	<StockRemaining>25</StockRemaining>
+	<Location>
+	  <XCoordinate>2</XCoordinate>
+	  <YCoordinate>2</YCoordinate>
+	</Location>
+  </Item>
+  <Item>
+	<UniqueId>6</UniqueId>
+	<ImageFilePath>Assets/Tools/Screwdriver.png</ImageFilePath>
+	<Name>Screwdriver</Name>
+	<Description>Hand tool for driving and removing screws.</Description>
+	<StockRemaining>9</StockRemaining>
+	<Location>
+	  <XCoordinate>3</XCoordinate>
+	  <YCoordinate>2</YCoordinate>
+	</Location>
+  </Item>
+  <Item>
+	<UniqueId>7</UniqueId>
+	<ImageFilePath>Assets/Tools/Wrench.png</ImageFilePath>
+	<Name>Wrench</Name>
+	<Description>Hand tool for tightening and loosening nuts and bolts.</Description>
+	<StockRemaining>6</StockRemaining>
+	<Location>
+	  <XCoordinate>1</XCoordinate>
+	  <YCoordinate>3</YCoordinate>
+	</Location>
+  </Item>
+</Items>

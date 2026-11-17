@@ -114,7 +114,7 @@ enum class ErrorCode : uint8_t {
 
 void setup() {
   // put your setup code here, to run once:
-  Serial.begin(19200);
+  Serial.begin(115200);
   pinMode(LED_RED_PIN, OUTPUT);
   pinMode(LED_GREEN_PIN, OUTPUT);
 }
@@ -131,7 +131,7 @@ void loop() {
 
 void ListenForMessages()
 {
-  
+
 }
 
 void ParseMessage(uint8_t opcode, uint8_t* params, uint8_t paramsCount)

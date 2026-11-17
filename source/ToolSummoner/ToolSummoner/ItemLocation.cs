@@ -16,12 +16,12 @@ namespace ToolSummoner
             yCoordinate = y;
         }
 
-        public bool IsDefined()
+        readonly public bool IsDefined()
         {
             return xCoordinate != 0f && yCoordinate != 0f;
         }
 
-        public string ToString()
+        readonly override public string ToString()
         {
             return $"{xCoordinate},{yCoordinate}";
         }

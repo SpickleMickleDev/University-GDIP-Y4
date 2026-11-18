@@ -9,6 +9,9 @@ namespace ToolSummoner
         // Separate class to allow for future expansion of location properties (e.g. Multiple stacked items and only taking the top item, having set item shelves for smaller items, etc.)
         public double xCoordinate { get; set; }
         public double yCoordinate { get; set; }
+        
+
+        // change this to be a set of 6 different values (0-180)?
 
         public ItemLocation(double x, double y)
         {

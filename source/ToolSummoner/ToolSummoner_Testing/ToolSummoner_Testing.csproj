@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\ToolSummoner\AIChatHandler.cs" Link="AIChatHandler.cs" />
     <Compile Include="..\ToolSummoner\ErrorHandler.cs" Link="ErrorHandler.cs" />
     <Compile Include="..\ToolSummoner\Logger.cs" Link="Logger.cs" />
     <Compile Include="..\ToolSummoner\RobotArmController.cs" Link="RobotArmController.cs" />

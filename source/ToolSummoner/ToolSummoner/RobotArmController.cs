@@ -85,36 +85,17 @@ namespace ToolSummoner
             keepListening = false;
         }
 
-        public void ListenForMessages()
+        public void Run()
         {
             Setup();
 
             while (keepListening)
             {
-                byte[]? response = ReadResponse(serialPort, TimeSpan.FromMilliseconds(2500), TimeSpan.FromMilliseconds(20000));
+                ListenForMessages();
 
-                if (response != null)
+                if (messagesToSendQueue.Count > 0)
                 {
-                    byte operation = response[2];
-
-                    switch (operation)
-                    {
-                        case RobotArmICD.RESPONSE_ACK:
-                            break;
-                        case RobotArmICD.RESPONSE_ERROR:
-                            break;
-                        case RobotArmICD.RESPONSE_COMPLETE:
-                            break;
-                        case RobotArmICD.RESPONSE_STORED_POS:
-                            break;
-                        case RobotArmICD.RESPONSE_VERSION_INFO:
-                            break;
-                        case RobotArmICD.RESPONSE_GENERAL_MESSAGE:
-                            Debug.WriteLine($"Received message: {DecodeGeneralMessage(response)}");
-                            break;
-                        default:
-                            break;
-                    }
+                    SendMessageOverSerial(messagesToSendQueue.Dequeue());
                 }
             }
             if (serialPort.IsOpen)
@@ -125,11 +106,184 @@ namespace ToolSummoner
             ShutDown();
         }
 
-        public static void SendMessage(byte Operation, byte[] parameters)
+        public void ListenForMessages()
         {
-            byte[] message = new byte[parameters.Length + 1];
-            message[0] = Operation;
-            Array.Copy(parameters, 0, message, 1, parameters.Length);
+            byte[]? response = ReadResponse(serialPort, TimeSpan.FromMilliseconds(2500), TimeSpan.FromMilliseconds(20000));
+
+            if (response != null)
+            {
+                byte operation = response[2];
+
+                switch (operation)
+                {
+                    case RobotArmICD.RESPONSE_ACK:
+                        break;
+                    case RobotArmICD.RESPONSE_ERROR:
+                        break;
+                    case RobotArmICD.RESPONSE_COMPLETE:
+                        break;
+                    case RobotArmICD.RESPONSE_STORED_POS:
+                        break;
+                    case RobotArmICD.RESPONSE_VERSION_INFO:
+                        break;
+                    case RobotArmICD.RESPONSE_GENERAL_MESSAGE:
+                        Debug.WriteLine($"Received message: {DecodeGeneralMessage(response)}");
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        public bool SendMessage_Calibrate(byte[] servoOffsets, bool waitUntilCompletion)
+        {
+            if (servoOffsets is null || servoOffsets.Length != 6) return false;
+            // Will have 1 operation + 6 parameters
+            byte[] message = new byte[7];
+            
+            message[0] = RobotArmICD.OPERATION_CALIBRATE;
+            Array.Copy(servoOffsets, 0, message, 1, servoOffsets.Length);
+
+            bool ackReceived = false;
+            bool completeReceived = false;
+
+
+
+            messagesToSendQueue.Enqueue(message);
+
+            // wait for message ack and message complete
+            return ackReceived && (!waitUntilCompletion || completeReceived);
+        }
+
+        public bool SendMessage_SetPosition(byte memoryIndex, byte[] servoValues, bool waitUntilCompletion)
+        {
+            if (servoValues is null || servoValues.Length != 5) return false;
+            // Will have 1 operation + 7 parameters
+            byte[] message = new byte[8];
+
+            message[0] = RobotArmICD.OPERATION_SET_POS;
+            message[1] = memoryIndex;
+            Array.Copy(servoValues, 0, message, 2, servoValues.Length);
+
+            bool ackReceived = false;
+            bool completeReceived = false;
+
+
+
+            messagesToSendQueue.Enqueue(message);
+
+            // wait for message ack and message complete
+            return ackReceived && (!waitUntilCompletion || completeReceived);
+        }
+
+        public bool SendMessage_GoToPosition(byte memoryIndex, bool waitUntilCompletion)
+        {
+            // Will have 1 operation + 1 parameter
+            byte[] message = { RobotArmICD.OPERATION_GOTO_POS, memoryIndex };
+
+            bool ackReceived = false;
+            bool completeReceived = false;
+            messagesToSendQueue.Enqueue(message);
+
+            // wait for message ack and message complete
+            return ackReceived && (!waitUntilCompletion || completeReceived);
+        }
+
+        public bool SendMessage_SetServo(byte[] servoValues, bool useOffsets, bool waitUntilCompletion)
+        {
+            if (servoValues is null || servoValues.Length != 6) return false;
+            // Will have 1 operation + 7 parameters
+            byte[] message = new byte[8];
+
+            message[0] = RobotArmICD.OPERATION_SET_SERVO;
+            message[7] = (byte)((useOffsets) ? 0x01 : 0x00);
+            Array.Copy(servoValues, 0, message, 1, servoValues.Length);
+
+            bool ackReceived = false;
+            bool completeReceived = false;
+            messagesToSendQueue.Enqueue(message);
+
+            // wait for message ack and message complete
+            return ackReceived && (!waitUntilCompletion || completeReceived);
+        }
+
+        public bool SendMessage_Grab(bool waitUntilCompletion)
+        {
+            // Will have 1 operation + 0 parameters
+            byte[] message = { RobotArmICD.OPERATION_GRAB };
+            
+            bool ackReceived = false;
+            bool completeReceived = false;
+            messagesToSendQueue.Enqueue(message);
+
+            // wait for message ack and message complete
+            return ackReceived && (!waitUntilCompletion || completeReceived);
+        }
+
+        public bool SendMessage_Drop(bool waitUntilCompletion)
+        {
+            // Will have 1 operation + 0 parameters
+            byte[] message = { RobotArmICD.OPERATION_DROP };
+
+            bool ackReceived = false;
+            bool completeReceived = false;
+            messagesToSendQueue.Enqueue(message);
+
+            // wait for message ack and message complete
+            return ackReceived && (!waitUntilCompletion || completeReceived);
+        }
+
+        public bool SendMessage_LogPosition(byte memoryIndex, bool waitUntilCompletion)
+        {
+            // Will have 1 operation + 1 parameter
+            byte[] message = { RobotArmICD.OPERATION_LOG_POS, memoryIndex };
+
+            bool ackReceived = false;
+            bool completeReceived = false;
+            messagesToSendQueue.Enqueue(message);
+
+            // wait for message ack and message complete
+            return ackReceived && (!waitUntilCompletion || completeReceived);
+        }
+
+        public bool SendMessage_RequestVersionInfo(bool waitUntilCompletion)
+        {
+            // Will have 1 operation + 0 parameters
+            byte[] message = { RobotArmICD.OPERATION_REQ_VER_INFO };
+
+            bool ackReceived = false;
+            bool completeReceived = false;
+            messagesToSendQueue.Enqueue(message);
+
+            // wait for message ack and message complete
+            return ackReceived && (!waitUntilCompletion || completeReceived);
+        }
+
+
+
+        private void SendMessageOverSerial(byte[] messageContents) // Includes both operation and the parameters
+        {
+            int messageContentsLength = messageContents.Length;
+            byte[] fullMessage = new byte[messageContentsLength+ 3];
+            fullMessage[0] = RobotArmICD.COMMS_START_BYTE_1;
+            fullMessage[1] = RobotArmICD.COMMS_START_BYTE_2;
+            Array.Copy(messageContents, 0, fullMessage, 2, messageContentsLength);
+            fullMessage[messageContentsLength + 2] = RobotArmICD.COMMS_START_BYTE_2;
+
+            serialPort.Write(fullMessage, 0, fullMessage.Length);
+        }
+
+        public void SendMessage(byte operation, byte[]? parameters = null)
+        {
+            int parameterCount = parameters?.Length ?? 0;
+            byte[] message = new byte[parameterCount + 1];
+
+            message[0] = operation;
+
+            if (parameters is not null)
+            {
+                Array.Copy(parameters, 0, message, 1, parameterCount);
+            }
 
             messagesToSendQueue.Enqueue(message);
         }

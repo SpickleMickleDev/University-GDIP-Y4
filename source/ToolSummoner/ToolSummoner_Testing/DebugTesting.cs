@@ -24,7 +24,12 @@ namespace ToolSummoner_Testing
 
             RobotArmController controller = new RobotArmController("COM5");
 
-            controller.ListenForMessages();
+            Task.Run(() => controller.Run());
+            Task.Run(() =>
+            {
+                Thread.Sleep(2000);
+                controller.SendMessage(RobotArmICD.OPERATION_DROP);
+            });
             
         }
 

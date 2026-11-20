@@ -3,16 +3,16 @@
   "WorkspaceRootPath": "C:\\Users\\micha\\source\\repos\\University-GDIP-Y4\\source\\ToolSummoner\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{772CB655-B815-4101-A703-902D03FFDAEF}|ToolSummoner_Testing\\ToolSummoner_Testing.csproj|c:\\users\\micha\\source\\repos\\university-gdip-y4\\source\\toolsummoner\\toolsummoner\\softwarecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{772CB655-B815-4101-A703-902D03FFDAEF}|ToolSummoner_Testing\\ToolSummoner_Testing.csproj|solutionrelative:toolsummoner\\softwarecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{6422B1AE-514D-4681-E5B7-B8926F9DE58A}|ToolSummoner\\ToolSummoner.csproj|c:\\users\\micha\\source\\repos\\university-gdip-y4\\source\\toolsummoner\\toolsummoner\\robotarmcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6422B1AE-514D-4681-E5B7-B8926F9DE58A}|ToolSummoner\\ToolSummoner.csproj|solutionrelative:toolsummoner\\robotarmcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{772CB655-B815-4101-A703-902D03FFDAEF}|ToolSummoner_Testing\\ToolSummoner_Testing.csproj|c:\\users\\micha\\source\\repos\\university-gdip-y4\\source\\toolsummoner\\toolsummoner_testing\\debugtesting.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{772CB655-B815-4101-A703-902D03FFDAEF}|ToolSummoner_Testing\\ToolSummoner_Testing.csproj|solutionrelative:toolsummoner_testing\\debugtesting.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{6422B1AE-514D-4681-E5B7-B8926F9DE58A}|ToolSummoner\\ToolSummoner.csproj|c:\\users\\micha\\source\\repos\\university-gdip-y4\\source\\toolsummoner\\toolsummoner\\robotarmcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6422B1AE-514D-4681-E5B7-B8926F9DE58A}|ToolSummoner\\ToolSummoner.csproj|solutionrelative:toolsummoner\\robotarmcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{772CB655-B815-4101-A703-902D03FFDAEF}|ToolSummoner_Testing\\ToolSummoner_Testing.csproj|c:\\users\\micha\\source\\repos\\university-gdip-y4\\source\\toolsummoner\\toolsummoner\\softwarecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{772CB655-B815-4101-A703-902D03FFDAEF}|ToolSummoner_Testing\\ToolSummoner_Testing.csproj|solutionrelative:toolsummoner\\softwarecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{772CB655-B815-4101-A703-902D03FFDAEF}|ToolSummoner_Testing\\ToolSummoner_Testing.csproj|c:\\users\\micha\\source\\repos\\university-gdip-y4\\source\\toolsummoner\\toolsummoner_testing\\toolsummoner_testing.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
@@ -70,7 +70,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Bookmark",
@@ -78,13 +78,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
               "Title": "SoftwareController.cs",
               "DocumentMoniker": "C:\\Users\\micha\\source\\repos\\University-GDIP-Y4\\source\\ToolSummoner\\ToolSummoner\\SoftwareController.cs",
               "RelativeDocumentMoniker": "ToolSummoner\\SoftwareController.cs",
               "ToolTip": "C:\\Users\\micha\\source\\repos\\University-GDIP-Y4\\source\\ToolSummoner\\ToolSummoner\\SoftwareController.cs",
               "RelativeToolTip": "ToolSummoner\\SoftwareController.cs",
-              "ViewState": "AgIAAFEAAAAAAAAAAAArwGUAAAANAAAAAAAAAA==",
+              "ViewState": "AgIAAFMAAAAAAAAAAAAWwGQAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-10-27T16:29:27.128Z",
               "IsPinned": true,
@@ -92,13 +92,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 0,
               "Title": "RobotArmController.cs",
               "DocumentMoniker": "C:\\Users\\micha\\source\\repos\\University-GDIP-Y4\\source\\ToolSummoner\\ToolSummoner\\RobotArmController.cs",
               "RelativeDocumentMoniker": "ToolSummoner\\RobotArmController.cs",
-              "ToolTip": "C:\\Users\\micha\\source\\repos\\University-GDIP-Y4\\source\\ToolSummoner\\ToolSummoner\\RobotArmController.cs",
-              "RelativeToolTip": "ToolSummoner\\RobotArmController.cs",
-              "ViewState": "AgIAAGcAAAAAAAAAAAAYwFAAAAANAAAAAAAAAA==",
+              "ToolTip": "C:\\Users\\micha\\source\\repos\\University-GDIP-Y4\\source\\ToolSummoner\\ToolSummoner\\RobotArmController.cs*",
+              "RelativeToolTip": "ToolSummoner\\RobotArmController.cs*",
+              "ViewState": "AgIAAFQAAAAAAAAAAAAQwGwAAABeAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-11-10T14:11:38.47Z",
               "IsPinned": true,
@@ -125,7 +125,7 @@
               "RelativeDocumentMoniker": "ToolSummoner_Testing\\DebugTesting.cs",
               "ToolTip": "C:\\Users\\micha\\source\\repos\\University-GDIP-Y4\\source\\ToolSummoner\\ToolSummoner_Testing\\DebugTesting.cs",
               "RelativeToolTip": "ToolSummoner_Testing\\DebugTesting.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAkAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAATAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-11-16T23:11:27.868Z",
               "IsPinned": true,

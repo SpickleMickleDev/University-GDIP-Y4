@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Ports;
 using System.Text;
+using System.Threading;
 
 namespace ToolSummoner
 {
@@ -48,16 +49,27 @@ namespace ToolSummoner
         public const int DefaultBaudRate = 115200;
         private SerialPort serialPort;
 
+        volatile static private Queue<byte[]> messagesToSendQueue;
+
         volatile bool keepListening = true;
 
         public RobotArmController(string comPort, bool openPort=true)
         {
-            serialPort = new SerialPort(comPort, DefaultBaudRate);
+            serialPort = new SerialPort(comPort, DefaultBaudRate)
+            {
+                DtrEnable = true,
+                RtsEnable = true,
+                Handshake = Handshake.None,
+                ReadTimeout = 1000
+            };
 
             if (openPort)
             {
                 serialPort.Open();
             }
+            Thread.Sleep(2000);
+
+            messagesToSendQueue = new Queue<byte[]>();
         }
 
         public void Setup()
@@ -79,7 +91,31 @@ namespace ToolSummoner
 
             while (keepListening)
             {
-                byte[]? response = ReadResponse(serialPort, TimeSpan.FromMilliseconds(250), TimeSpan.FromMilliseconds(2000));
+                byte[]? response = ReadResponse(serialPort, TimeSpan.FromMilliseconds(2500), TimeSpan.FromMilliseconds(20000));
+
+                if (response != null)
+                {
+                    byte operation = response[2];
+
+                    switch (operation)
+                    {
+                        case RobotArmICD.RESPONSE_ACK:
+                            break;
+                        case RobotArmICD.RESPONSE_ERROR:
+                            break;
+                        case RobotArmICD.RESPONSE_COMPLETE:
+                            break;
+                        case RobotArmICD.RESPONSE_STORED_POS:
+                            break;
+                        case RobotArmICD.RESPONSE_VERSION_INFO:
+                            break;
+                        case RobotArmICD.RESPONSE_GENERAL_MESSAGE:
+                            Debug.WriteLine($"Received message: {DecodeGeneralMessage(response)}");
+                            break;
+                        default:
+                            break;
+                    }
+                }
             }
             if (serialPort.IsOpen)
             {
@@ -87,6 +123,27 @@ namespace ToolSummoner
             }
 
             ShutDown();
+        }
+
+        public static void SendMessage(byte Operation, byte[] parameters)
+        {
+            byte[] message = new byte[parameters.Length + 1];
+            message[0] = Operation;
+            Array.Copy(parameters, 0, message, 1, parameters.Length);
+
+            messagesToSendQueue.Enqueue(message);
+        }
+
+        private static string DecodeGeneralMessage(byte[] originalBuffer)
+        {
+            int count = originalBuffer.Length - 4;
+            var output = new StringBuilder(count);
+            
+            for (int i = 3; i < count + 3; i++)
+            {
+                output.Append((char)originalBuffer[i]);
+            }
+            return output.ToString();
         }
 
         static public bool TestPort(string comPort)

@@ -17,10 +17,14 @@ namespace ToolSummoner_Testing
             software.GetRobotArmPort();
         }
 
+        [TestMethod]
         public void TestListenForGeneralMessages()
         {
             SoftwareController software = new SoftwareController();
 
+            RobotArmController controller = new RobotArmController("COM5");
+
+            controller.ListenForMessages();
             
         }
 

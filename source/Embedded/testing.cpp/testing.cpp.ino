@@ -168,7 +168,7 @@ enum class ErrorCode : uint8_t {
         } \
         if (debugLength > MAX_MESSAGE_LENGTH) debugLength = MAX_MESSAGE_LENGTH; \
         SendGeneralMessage(debugBuffer, (uint8_t)debugLength); \
-    } while (0) // do while (0) and backslashes allow macro across multiple lines without unexpected behaviour
+    } while (0) // backslashes allow macro across multiple lines and do while(0) prevents unexpected behaviour with if else branches
 #else
 // If DEBUG is not defined then do nothing
 #define DEBUG_MESSAGE(...) ((void)0);
@@ -230,7 +230,7 @@ void loop()
 {
 #ifdef DEBUG
 unsigned long before = 0;
-unsigned long after = 0;  
+unsigned long after = 0;
 #endif
 
   if (Serial.available() > 0)
@@ -247,11 +247,11 @@ unsigned long after = 0;
     after = micros();
     DEBUG_MESSAGE("Processing message took %dus.", after - before); // Print how many microseconds the ProcessMessages() function took
     #endif
-    delay(1000);
     digitalWrite(LED_SERIAL_IN_INDICATOR_PIN, LOW);
   }
 
   DEBUG_MESSAGE("Hello is anyone there?");
+  delay(60);
 }
 
 void debugLoop()
@@ -686,13 +686,13 @@ void SendMessage(uint8_t* message, uint8_t length)
 {
   digitalWrite(LED_SERIAL_OUT_INDICATOR_PIN, HIGH);
 
-  Serial.print(COMMS_START_BYTE_1);
-  Serial.print(COMMS_START_BYTE_2);
+  Serial.write(COMMS_START_BYTE_1);
+  Serial.write(COMMS_START_BYTE_2);
   for (int i = 0; i < length; i++)
   {
-    Serial.print(message[i]);
+    Serial.write(message[i]);
   }
-  Serial.print(COMMS_STOP_BYTE);
+  Serial.write(COMMS_STOP_BYTE);
 
   digitalWrite(LED_SERIAL_OUT_INDICATOR_PIN, LOW);
 }

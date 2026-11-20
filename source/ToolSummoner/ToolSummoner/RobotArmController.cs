@@ -27,6 +27,8 @@ namespace ToolSummoner
         public const byte RESPONSE_COMPLETE = 0xE2;
         public const byte RESPONSE_STORED_POS = 0xE3;
         public const byte RESPONSE_VERSION_INFO = 0xE4;
+        public const byte RESPONSE_GENERAL_MESSAGE = 0xE5;
+
         // Add more responses as needed. Robot Arm -> Application
 
         public enum ErrorTypes
@@ -45,6 +47,8 @@ namespace ToolSummoner
     {
         public const int DefaultBaudRate = 115200;
         private SerialPort serialPort;
+
+        volatile bool keepListening = true;
 
         public RobotArmController(string comPort, bool openPort=true)
         {
@@ -66,10 +70,23 @@ namespace ToolSummoner
 
         public void ShutDown()
         {
+            keepListening = false;
+        }
+
+        public void ListenForMessages()
+        {
+            Setup();
+
+            while (keepListening)
+            {
+                byte[]? response = ReadResponse(serialPort, TimeSpan.FromMilliseconds(250), TimeSpan.FromMilliseconds(2000));
+            }
             if (serialPort.IsOpen)
             {
                 serialPort.Close();
             }
+
+            ShutDown();
         }
 
         static public bool TestPort(string comPort)

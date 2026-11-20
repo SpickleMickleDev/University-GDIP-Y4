@@ -1,7 +1,7 @@
 #include <Preferences.h> // Non-volatile storage
 
 // Optional compilation symbols
-#define PRINT_DEBUG
+#define DEBUG
 
 
 // ==================================================
@@ -22,16 +22,45 @@
 const uint8_t LED_SERIAL_IN_INDICATOR_PIN = 1;   // represents serial activity in - RED LED
 const uint8_t LED_SERIAL_OUT_INDICATOR_PIN = 2;   // represents serial activity out - GREEN LED
 
-const uint8_t SERVO_1_BASE_PWM_PIN         = 39;
-const uint8_t SERVO_2_SHOULDER_PWM_PIN     = 37;
-const uint8_t SERVO_3_ELBOW_PWM_PIN        = 35;
-const uint8_t SERVO_4_WRIST_PWM_PIN        = 33;
-const uint8_t SERVO_5_GRIPPER_PWM_PIN      = 18;
-const uint8_t SERVO_6_WRIST_ROTATE_PWM_PIN = 16;
-const uint8_t SERVO_PINS[] = { SERVO_1_BASE_PWM_PIN, SERVO_2_SHOULDER_PWM_PIN, SERVO_3_ELBOW_PWM_PIN, SERVO_4_WRIST_PWM_PIN, SERVO_5_GRIPPER_PWM_PIN, SERVO_6_WRIST_ROTATE_PWM_PIN };
+const uint8_t SERVO_BASE_PWM_PIN         = 39;
+const uint8_t SERVO_SHOULDER_PWM_PIN     = 37;
+const uint8_t SERVO_ELBOW_PWM_PIN        = 35;
+const uint8_t SERVO_WRIST_PWM_PIN        = 33;
+const uint8_t SERVO_WRIST_ROTATE_PWM_PIN = 18;
+const uint8_t SERVO_GRIPPER_PWM_PIN      = 16;
+enum class ServoIndices : uint8_t {
+  BASE,
+  SHOULDER,
+  ELBOW,
+  WRIST,
+  WRIST_ROTATE,
+  GRIPPER,
+  COUNT
+};
+constexpr uint8_t SERVO_COUNT = static_cast<uint8_t>(ServoIndices::COUNT);
+
+constexpr uint8_t SERVO_PINS[SERVO_COUNT] = {
+  SERVO_BASE_PWM_PIN,
+  SERVO_SHOULDER_PWM_PIN,
+  SERVO_ELBOW_PWM_PIN,
+  SERVO_WRIST_PWM_PIN,
+  SERVO_WRIST_ROTATE_PWM_PIN,
+  SERVO_GRIPPER_PWM_PIN
+};
 
 const uint8_t SERVO_PWM_FREQUENCY = 50;
 const uint8_t SERVO_PWM_RESOLUTION = 12;
+
+// Values set for maximum safe range of motion
+const uint8_t SERVO_POSITION_LIMITS[][2] = 
+{
+  {0x00, 0xCD}, // Servo 1 min, max
+  {0x00, 0xCD}, // Servo 2 min, max
+  {0x00, 0xCD}, // Servo 3 min, max
+  {0x00, 0xCD}, // Servo 4 min, max
+  {0x00, 0xCD}, // Servo 5 min, max
+  {0x00, 0xCD}  // Servo 6 min, max
+};
 
 // --------------------------------------------------
 // ==================================================
@@ -42,7 +71,6 @@ const uint8_t SERVO_PWM_RESOLUTION = 12;
 // ==================================================
 
 const uint8_t MAX_POSITION_COUNT = 256;
-const uint8_t SERVO_COUNT = 6;
 #define FILE_NAME_POSITIONS "/positions.txt"
 #define FILE_NAME_OFFSETS "/offsets.txt"
 
@@ -61,8 +89,9 @@ uint8_t positionData[MAX_POSITION_COUNT][SERVO_COUNT];
 // Stores the offsets for each servo to account for any bias at the software level
 int8_t offsets[SERVO_COUNT];
 
-// Stores the current configured servos' positions
+// Stores the current position data for reference
 uint8_t currentPosition[SERVO_COUNT];
+uint8_t currentOffsets[SERVO_COUNT];
 
 // --------------------------------------------------
 // ==================================================
@@ -73,25 +102,26 @@ uint8_t currentPosition[SERVO_COUNT];
 // ==================================================
 
 // Protocol constants
-const uint8_t COMMS_START_BYTE_1 =     0xFF;
-const uint8_t COMMS_START_BYTE_2 =     0xF6;
-const uint8_t COMMS_STOP_BYTE    =     0x5F;
+const uint8_t COMMS_START_BYTE_1 =        0xFF;
+const uint8_t COMMS_START_BYTE_2 =        0xF6;
+const uint8_t COMMS_STOP_BYTE    =        0x5F;
 
 // Operation and response codes
-const uint8_t OPERATION_CALIBRATE =     0xD0;
-const uint8_t OPERATION_SET_POS =       0xD1;
-const uint8_t OPERATION_GOTO_POS =      0xD2;
-const uint8_t OPERATION_SET_SERVO =     0xD3;
-const uint8_t OPERATION_GRAB =          0xD4;
-const uint8_t OPERATION_DROP =          0xD5;
-const uint8_t OPERATION_LOG_POS =       0xD6;
-const uint8_t OPERATION_REQ_VER_INFO =  0xD7;
+const uint8_t OPERATION_CALIBRATE =       0xD0;
+const uint8_t OPERATION_SET_POS =         0xD1;
+const uint8_t OPERATION_GOTO_POS =        0xD2;
+const uint8_t OPERATION_SET_SERVO =       0xD3;
+const uint8_t OPERATION_GRAB =            0xD4;
+const uint8_t OPERATION_DROP =            0xD5;
+const uint8_t OPERATION_LOG_POS =         0xD6;
+const uint8_t OPERATION_REQ_VER_INFO =    0xD7;
 
-const uint8_t RESPONSE_ACK =            0xE0;
-const uint8_t RESPONSE_ERROR =          0xE1;  
-const uint8_t RESPONSE_COMPLETE =       0xE2;
-const uint8_t RESPONSE_STORED_POS =     0xE3;
-const uint8_t RESPONSE_VERSION_INFO =   0xE4;
+const uint8_t RESPONSE_ACK =              0xE0;
+const uint8_t RESPONSE_ERROR =            0xE1;  
+const uint8_t RESPONSE_COMPLETE =         0xE2;
+const uint8_t RESPONSE_STORED_POS =       0xE3;
+const uint8_t RESPONSE_VERSION_INFO =     0xE4;
+const uint8_t RESPONSE_GENERAL_MESSAGE =  0xE5;
 
 
 const uint8_t OPERATIONS_OFFSET = 0xD0; // First opcode is at 0xD0 for readability and differentiation from operand / parameter values which typically do not exceed 0xCD
@@ -112,11 +142,6 @@ const uint8_t EXPECTED_OPERATIONS_PARAM_COUNT[] = {
   0,  // For Opcode 0xDD - does not exist yet
   0,  // For Opcode 0xDE - does not exist yet
   0,  // For Opcode 0xDF - does not exist yet
-  0,  // For Opcode 0xE0
-  1,  // For Opcode 0xE1
-  1,  // For Opcode 0xE2
-  12, // For Opcode 0xE3
-  2  // For Opcode 0xE4
 };
 
 
@@ -130,6 +155,24 @@ enum class ErrorCode : uint8_t {
   ERROR_SERVO_COMMAND_OUT_OF_RANGE  = 0x05,
   ERROR_SERVO_W_OFFSET_OUT_OF_RANGE = 0x06
 };
+
+#define MAX_MESSAGE_LENGTH 255
+
+#ifdef DEBUG
+#define DEBUG_MESSAGE(format, ...) \
+    do { \
+        char debugBuffer[MAX_MESSAGE_LENGTH + 1]; \
+        int debugLength = snprintf(debugBuffer, sizeof(debugBuffer), format, ##__VA_ARGS__); \
+        if (debugLength < 0) { \
+            break; \
+        } \
+        if (debugLength > MAX_MESSAGE_LENGTH) debugLength = MAX_MESSAGE_LENGTH; \
+        SendGeneralMessage(debugBuffer, (uint8_t)debugLength); \
+    } while (0) // do while (0) and backslashes allow macro across multiple lines without unexpected behaviour
+#else
+// If DEBUG is not defined then do nothing
+#define DEBUG_MESSAGE(...) ((void)0);
+#endif
 
 // --------------------------------------------------
 // ==================================================
@@ -152,12 +195,10 @@ void setup() {
   pinMode(LED_SERIAL_IN_INDICATOR_PIN, OUTPUT);
   pinMode(LED_SERIAL_OUT_INDICATOR_PIN, OUTPUT);
 
-  ledcAttach(SERVO_1_BASE_PWM_PIN,          SERVO_PWM_FREQUENCY,  SERVO_PWM_RESOLUTION);
-  ledcAttach(SERVO_2_SHOULDER_PWM_PIN,      SERVO_PWM_FREQUENCY,  SERVO_PWM_RESOLUTION);
-  ledcAttach(SERVO_3_ELBOW_PWM_PIN,         SERVO_PWM_FREQUENCY,  SERVO_PWM_RESOLUTION);
-  ledcAttach(SERVO_4_WRIST_PWM_PIN,         SERVO_PWM_FREQUENCY,  SERVO_PWM_RESOLUTION);
-  ledcAttach(SERVO_5_GRIPPER_PWM_PIN,       SERVO_PWM_FREQUENCY,  SERVO_PWM_RESOLUTION);
-  ledcAttach(SERVO_6_WRIST_ROTATE_PWM_PIN,  SERVO_PWM_FREQUENCY,  SERVO_PWM_RESOLUTION);
+  for (int i = 0; i < SERVO_COUNT; i++)
+  {
+    ledcAttach(SERVO_PINS[i],          SERVO_PWM_FREQUENCY,  SERVO_PWM_RESOLUTION);
+  }
   // T = 20ms   f = 1/T = 1/0.02 = 50Hz
   // 0.5ms-2.5ms / 20ms
   // Duty cycle 2.5%-12.5%
@@ -170,30 +211,24 @@ void setup() {
   // Load positions from non volatile memory
   if (!LoadPositionsMatrices())
   {
-    #ifdef PRINT_DEBUG
-    Serial.println("Position matrix failed to load. Building a new one.");
-    #endif
-
+    DEBUG_MESSAGE("Position matrix failed to load. Building a new one.");
+   
     memset(positionData, 0, sizeof(positionData));
     SavePositionsMatrices();
   }
   
   if (!LoadOffsets())
   {
-    #ifdef PRINT_DEBUG
-    Serial.println("Offsets failed to load. Building new values.");
-    #endif
+    DEBUG_MESSAGE("Offsets failed to load. Building new values.");
 
     memset(offsets, 0, sizeof(offsets));
     SaveOffsets();
   }
-
-  memset(currentPosition, 0, sizeof(currentPosition)); // @todo: note this needs looking at as it has not been entirely thought out. May need to be set to the offset values, may need moving to offset values, something...
 }
 
 void loop() 
 {
-#ifdef PRINT_DEBUG
+#ifdef DEBUG
 unsigned long before = 0;
 unsigned long after = 0;  
 #endif
@@ -202,21 +237,21 @@ unsigned long after = 0;
   {
     digitalWrite(LED_SERIAL_IN_INDICATOR_PIN, HIGH);
 
-    #ifdef PRINT_DEBUG
+    #ifdef DEBUG
     before = micros();
     #endif
     
     ProcessMessages();
 
-    #ifdef PRINT_DEBUG
+    #ifdef DEBUG
     after = micros();
-    Serial.print("Processing message took ");
-    Serial.print(after - before);
-    Serial.println("us"); // Print how many microseconds the ProcessMessages() function took
+    DEBUG_MESSAGE("Processing message took %dus.", after - before); // Print how many microseconds the ProcessMessages() function took
     #endif
-    
+    delay(1000);
     digitalWrite(LED_SERIAL_IN_INDICATOR_PIN, LOW);
   }
+
+  DEBUG_MESSAGE("Hello is anyone there?");
 }
 
 void debugLoop()
@@ -358,6 +393,8 @@ void ProcessMessages()
           else
           {
             // Now do the respective operation
+            SendMessageAck();
+
             switch(message[0]) // operation code
             {
               case OPERATION_CALIBRATE:
@@ -403,8 +440,9 @@ void ProcessMessages()
 // [1] Servo offset (Shoulder) : int8 
 // [2] Servo offset (Elbow) : int8 
 // [3] Servo offset (Wrist) : int8 
-// [4] Servo offset (Gripper) : int8 
-// [5] Servo offset (Wrist rotate) : int8 
+// [4] Servo offset (Wrist rotate) : int8 
+// [5] Servo offset (Gripper) : int8 
+// Instructs the robot arm circuit to use the following offsets for the servo values. 
 void OperationCall_Calibrate(uint8_t* parameters, uint8_t parameterCount)
 {
   if (parameterCount != 6)
@@ -422,9 +460,7 @@ void OperationCall_Calibrate(uint8_t* parameters, uint8_t parameterCount)
   memcpy(offsets, signedOffsets, 6);
   SaveOffsets();
 
-  #ifdef PRINT_DEBUG
-  Serial.printf("Offsets now set to %d(%02x), %d(%02x), %d(%02x), %d(%02x), %d(%02x), %d(%02x).\n", parameters[0], parameters[0], parameters[1], parameters[1], parameters[2], parameters[2], parameters[3], parameters[3], parameters[4], parameters[4], parameters[5], parameters[5]);
-  #endif
+  DEBUG_MESSAGE("Offsets now set to %d(%02x), %d(%02x), %d(%02x), %d(%02x), %d(%02x), %d(%02x).\n", parameters[0], parameters[0], parameters[1], parameters[1], parameters[2], parameters[2], parameters[3], parameters[3], parameters[4], parameters[4], parameters[5], parameters[5]);
 }
 
 // Expecting 7 parameters
@@ -433,8 +469,9 @@ void OperationCall_Calibrate(uint8_t* parameters, uint8_t parameterCount)
 // [2] Servo value (Shoulder) : uint8 
 // [3] Servo value (Elbow) : uint8 
 // [4] Servo value (Wrist) : uint8 
-// [5] Servo value (Gripper) : uint8 
-// [6] Servo value (Wrist rotate) : uint8 
+// [5] Servo value (Wrist rotate) : uint8 
+// [6] Servo value (Gripper) : uint8 
+// Saves a set position in memory that can be referenced later. 
 void OperationCall_SetPosition(uint8_t* parameters, uint8_t parameterCount)
 {
   if (parameterCount != 7)
@@ -445,16 +482,22 @@ void OperationCall_SetPosition(uint8_t* parameters, uint8_t parameterCount)
 
   memcpy(positionData[parameters[0]], &parameters[1], 6 * sizeof(uint8_t));
 
-  #ifdef PRINT_DEBUG
-  Serial.printf("Position data at address %d now set to %d(%02x), %d(%02x), %d(%02x), %d(%02x), %d(%02x), %d(%02x).\n", parameters[0], parameters[1], parameters[1], parameters[2], parameters[2], parameters[3], parameters[3], parameters[4], parameters[4], parameters[5], parameters[5], parameters[6], parameters[6]);
-  #endif
+  DEBUG_MESSAGE("Position data at address %d now set to %d(%02x), %d(%02x), %d(%02x), %d(%02x), %d(%02x), %d(%02x).\n", parameters[0], parameters[1], parameters[1], parameters[2], parameters[2], parameters[3], parameters[3], parameters[4], parameters[4], parameters[5], parameters[5], parameters[6], parameters[6]);
 }
 
 // Expecting 1 parameter
 // [0] Memory index : uint8 
+// Loads a set position from memory that was previously set. 
+// Will raise an error if that memory location has not yet been set. 
 void OperationCall_GoToPosition(uint8_t index)
 {
   // @todo Implement moving the servos. Need to add bound checks of course, also factoring in offsets. Possible values [0x00,0xCD]
+  for (int i = 0; i < SERVO_COUNT; i++)
+    SetServoPosition(i, positionData[index][i], true);
+  {
+  }
+
+  DEBUG_MESSAGE("Servos moving to %d(%02x), %d(%02x), %d(%02x), %d(%02x), %d(%02x), %d(%02x).\n", positionData[index][0], positionData[index][0], positionData[index][1], positionData[index][1], positionData[index][2], positionData[index][2], positionData[index][3], positionData[index][3], positionData[index][4], positionData[index][4], positionData[index][5], positionData[index][5]);
 }
 
 // Expecting 7 parameters
@@ -462,9 +505,12 @@ void OperationCall_GoToPosition(uint8_t index)
 // [1] Servo value (Shoulder) : uint8 
 // [2] Servo value (Elbow) : uint8 
 // [3] Servo value (Wrist) : uint8 
-// [4] Servo value (Gripper) : uint8 
-// [5] Servo value (Wrist rotate) : uint8 
-// [6] Apply offset : Boolean 
+// [4] Servo value (Wrist rotate) : uint8 
+// [5] Servo value (Gripper) : uint8 
+// [6] Apply offset : Boolean
+// Instructs the robot arm circuit to move to a desired position, dictated by the following servo values. 
+// The Apply offset parameter determines if the calibrated offset is to be applied. 
+// This is since if one is looking to determine the correct calibration offsets, it would be ideal not to add the existing offsets. 
 void OperationCall_SetServos(uint8_t* parameters, uint8_t parameterCount)
 {
   if (parameterCount != 7)
@@ -473,19 +519,34 @@ void OperationCall_SetServos(uint8_t* parameters, uint8_t parameterCount)
     return;
   }
 
-  // @todo
+  bool useOffset = (parameters[6] == 0x01);
+
+  for (int i = 0; i < SERVO_COUNT; i++)
+    SetServoPosition(i, parameters[i], useOffset);
+  {
+  }
+
+  DEBUG_MESSAGE("Servos manually moved to %d(%02x), %d(%02x), %d(%02x), %d(%02x), %d(%02x), %d(%02x). Offset is%s applied.\n", parameters[0], parameters[0], parameters[1], parameters[1], parameters[2], parameters[2], parameters[3], parameters[3], parameters[4], parameters[4], parameters[5], parameters[5], useOffset ? "" : " not");
 }
 
 // 0 Parameters expected.
+// Instructs the robot arm to drop its current item (i.e. Set the Gripper servo value to open) 
 void OperationCall_Grab()
 {
-  // @todo
+  SetServoPosition(SERVO_GRIPPER_PWM_PIN, SERVO_POSITION_LIMITS[static_cast<uint8_t>(ServoIndices::GRIPPER)][0], true);
+  // Assuming gripped servo opens when set to min value. Needs experimenting
+
+  DEBUG_MESSAGE("Item has been grabbed.");
 }
 
 // 0 Parameters expected.
+// Instructs the robot arm to drop its current item (i.e. Set the Gripper servo value to open) 
 void OperationCall_Drop()
 {
-  // @todo
+  SetServoPosition(SERVO_GRIPPER_PWM_PIN, SERVO_POSITION_LIMITS[static_cast<uint8_t>(ServoIndices::GRIPPER)][1], true);
+  // Assuming gripped servo opens when set to max value. Needs experimenting
+
+  DEBUG_MESSAGE("Item has been dropped.");
 }
 
 // Expecting 1 parameter
@@ -495,17 +556,18 @@ void OperationCall_Drop()
 // [1] Servo value (Shoulder) : uint8 
 // [2] Servo value (Elbow) : uint8 
 // [3] Servo value (Wrist) : uint8 
-// [4] Servo value (Gripper) : uint8 
-// [5] Servo value (Wrist rotate) : uint8 
+// [4] Servo value (Wrist rotate) : uint8 
+// [5] Servo value (Gripper) : uint8 
 // [6] Servo offset (Base) : uint8 
 // [7] Servo offset (Shoulder) : uint8 
 // [8] Servo offset (Elbow) : uint8 
 // [9] Servo offset (Wrist) : uint8 
-// [10] Servo offset (Gripper) : uint8 
-// [11] Servo offset (Wrist rotate) : uint8 
+// [10] Servo offset (Wrist rotate) : uint8 
+// [11] Servo offset (Gripper) : uint8 
+// Instructs the embedded software to log (respond with) the stored position values at a given stored location, for verification purposes. 
 void OperationCall_LogPosition(uint8_t index)
 {
-  const uint8_t message[12] = {currentPosition[0], currentPosition[1], currentPosition[2], currentPosition[3], currentPosition[4], currentPosition[5], offsets[0], offsets[1], offsets[2], offsets[3], currentPosition[4], offsets[5]};
+  uint8_t message[12] = {currentPosition[0], currentPosition[1], currentPosition[2], currentPosition[3], currentPosition[4], currentPosition[5], currentOffsets[0], currentOffsets[1], currentOffsets[2], currentOffsets[3], currentOffsets[4], currentOffsets[5]};
 
   SendMessage(message, 12);
 }
@@ -514,6 +576,7 @@ void OperationCall_LogPosition(uint8_t index)
 // Returns:
 // [0] Major version number : uint8 
 // [1] Minor version num ber : uint8 
+// Requests version info from the embedded software 
 void OperationCall_VersionInfoRequested()
 {
   uint8_t* message = (uint8_t*)malloc(3 * sizeof(uint8_t));
@@ -522,6 +585,15 @@ void OperationCall_VersionInfoRequested()
   message[2] = SOFTWARE_VER_MINOR;
 
   SendMessage(message, 3);
+  free(message);
+}
+
+void SendMessageAck()
+{
+  uint8_t* message = (uint8_t*)malloc(sizeof(uint8_t));
+  message[0] = RESPONSE_ACK;
+
+  SendMessage(message, 1);
   free(message);
 }
 
@@ -535,18 +607,33 @@ void SendOperationCompletedMessage(uint8_t operationCode)
   free(message);
 }
 
-void SetServo(uint8_t servoIndex, uint8_t value) // value from 0-205 (0x00-0xCD)
+bool SendGeneralMessage(char* messageToSend, uint8_t messageLength)
 {
-  int16_t correctedValue = value + offsets[servoIndex];
-  if (correctedValue > 0xCD)
+  if (messageLength > 0xFF) return false;
+  if (messageLength == 0) return true;
+
+  
+  uint8_t* message = (uint8_t*)malloc(sizeof(uint8_t) + messageLength * sizeof(char)); // Same size but just for consistency really
+  message[0] = RESPONSE_GENERAL_MESSAGE;
+  memcpy(&message[1], messageToSend, messageLength);
+
+  SendMessage(message, messageLength + 1);
+  free(message);
+}
+
+bool SetServoPosition(uint8_t servoIndex, uint8_t value, bool useOffset) // value from 0-205 (0x00-0xCD)
+// Returns if the operation was valid or not
+{
+  int16_t correctedValue = value;
+  if (useOffset) correctedValue += value; // faster when compiled than summing with a shorthand if statement
+
+  if (correctedValue > SERVO_POSITION_LIMITS[servoIndex][1]) // If greater than this servo's set maximum value
   {
     RaiseError(ErrorCode::ERROR_SERVO_W_OFFSET_OUT_OF_RANGE);
-    return;
   }
-  else if (correctedValue < 0)
+  else if (correctedValue < SERVO_POSITION_LIMITS[servoIndex][0]) // If lower than this servo's set minimum value
   {
     RaiseError(ErrorCode::ERROR_SERVO_W_OFFSET_OUT_OF_RANGE);
-    return;
   }
   else if (servoIndex >= SERVO_COUNT)
   {
@@ -558,7 +645,13 @@ void SetServo(uint8_t servoIndex, uint8_t value) // value from 0-205 (0x00-0xCD)
     // Duty cycle varies from 2.49%(102) to 12.5%(512). 
     // The servo therefore has a range of 410 possible values. 'uint8_t value' varies from 0 - 205, making the lowest value step 0.0488%
     ledcWrite(SERVO_PINS[servoIndex], 102 + correctedValue);
+
+    // Update current position values
+    currentPosition[servoIndex] = value;
+    currentOffsets[servoIndex] = correctedValue - value;
+    return true;
   }
+  return false;
 }
 
 // PWM - Total time 20ms

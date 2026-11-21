@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Ports;
+using System.Security.AccessControl;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace ToolSummoner
 {
@@ -40,7 +43,7 @@ namespace ToolSummoner
             ERROR_CONFUSING_MESSAGE = 0x03,
             ERROR_MEMORY_LOCATION_NOT_SET = 0x04,
             ERROR_SERVO_COMMAND_OUT_OF_RANGE = 0x05,
-            ERROR_SERVO_W_OFFSET_OUT_OF_RANGE = 0x06
+            ERROR_SERVO_W_OFFSET_OUT_OF_RANGE =  0x06
         };
     }
 
@@ -49,18 +52,28 @@ namespace ToolSummoner
         public const int DefaultBaudRate = 115200;
         private SerialPort serialPort;
 
-        volatile static private Queue<byte[]> messagesToSendQueue;
+        private readonly ConcurrentQueue<byte[]> messagesToSendQueue = new();
+        private readonly SemaphoreSlim commandLock = new(1, 1);
+        private readonly object pendingRequestLock = new();
+        private TaskCompletionSource<bool>? pendingCompletion;
+        private byte pendingOperation;
+        private volatile bool keepListening = true;
 
-        volatile bool keepListening = true;
+        public event EventHandler<string>? MessageReceived;
+        private void PublishMessage(string message)
+        {
+            Debug.WriteLine(message); 
+            MessageReceived?.Invoke(this, message);
+        }
 
-        public RobotArmController(string comPort, bool openPort=true)
+        public RobotArmController(string comPort, bool dtrEnable = true, bool rtsEnable = true, bool openPort=true)
         {
             serialPort = new SerialPort(comPort, DefaultBaudRate)
             {
-                DtrEnable = true,
-                RtsEnable = true,
+                DtrEnable = dtrEnable,
+                RtsEnable = rtsEnable,
                 Handshake = Handshake.None,
-                ReadTimeout = 1000
+                ReadTimeout = 1000 
             };
 
             if (openPort)
@@ -69,7 +82,6 @@ namespace ToolSummoner
             }
             Thread.Sleep(2000);
 
-            messagesToSendQueue = new Queue<byte[]>();
         }
 
         public void Setup()
@@ -91,12 +103,12 @@ namespace ToolSummoner
 
             while (keepListening)
             {
-                ListenForMessages();
-
-                if (messagesToSendQueue.Count > 0)
+                if (messagesToSendQueue.TryDequeue(out byte[]? message))
                 {
-                    SendMessageOverSerial(messagesToSendQueue.Dequeue());
+                    SendMessageOverSerial(message);
                 }
+
+                ListenForMessages();
             }
             if (serialPort.IsOpen)
             {
@@ -117,21 +129,87 @@ namespace ToolSummoner
                 switch (operation)
                 {
                     case RobotArmICD.RESPONSE_ACK:
+                        PublishMessage($"{DateTime.Now.ToString("HH:mm:ss")} - ACK message received");
                         break;
                     case RobotArmICD.RESPONSE_ERROR:
+                        PublishMessage($"{DateTime.Now.ToString("HH:mm:ss")} - ERROR message received with code {response[3]:X2}");
+                        lock (pendingRequestLock)
+                        {
+                            pendingCompletion?.TrySetResult(false);
+                        }
                         break;
                     case RobotArmICD.RESPONSE_COMPLETE:
+                        PublishMessage($"{DateTime.Now.ToString("HH:mm:ss")} - COMPLETE message received [0x{response[3]:X2}]");
+                        lock (pendingRequestLock)
+                        {
+                            if (response[3] == pendingOperation)
+                            {
+                                pendingCompletion?.TrySetResult(true);
+                            }
+                        }
                         break;
                     case RobotArmICD.RESPONSE_STORED_POS:
+                        string positionData = "";
+                        for (int i = 3; i < 15; i++)
+                        {
+                            positionData += $"{response[i]}, ";
+                        }
+                        PublishMessage($"{DateTime.Now.ToString("HH:mm:ss")} - STORED POSITION message received: {positionData}");
                         break;
                     case RobotArmICD.RESPONSE_VERSION_INFO:
+                        PublishMessage($"{DateTime.Now.ToString("HH:mm:ss")} - VERSION INFO message received with version {response[3]:D2}.{response[4]:D2}");
+
                         break;
                     case RobotArmICD.RESPONSE_GENERAL_MESSAGE:
-                        Debug.WriteLine($"Received message: {DecodeGeneralMessage(response)}");
+                        PublishMessage($"{DateTime.Now.ToString("HH:mm:ss")} - GENERAL message received: {DecodeGeneralMessage(response)}");
                         break;
                     default:
                         break;
                 }
+            }
+        }
+
+        private bool QueueMessage(byte[] message, byte operation, bool waitUntilCompletion)
+        {
+            if (!waitUntilCompletion)
+            {
+                messagesToSendQueue.Enqueue(message);
+                return true;
+            }
+
+            commandLock.Wait();
+
+            try
+            {
+                var completion = new TaskCompletionSource<bool>(
+                    TaskCreationOptions.RunContinuationsAsynchronously);
+
+                lock (pendingRequestLock)
+                {
+                    pendingOperation = operation;
+                    pendingCompletion = completion;
+                }
+
+                messagesToSendQueue.Enqueue(message);
+
+                return completion.Task.Wait(TimeSpan.FromSeconds(20)) &&
+                       completion.Task.Result;
+            }
+            catch (AggregateException)
+            {
+                return false;
+            }
+            finally
+            {
+                lock (pendingRequestLock)
+                {
+                    if (ReferenceEquals(pendingCompletion, null) == false)
+                    {
+                        pendingCompletion = null;
+                    }
+                }
+
+                commandLock.Release();
             }
         }
 
@@ -144,20 +222,12 @@ namespace ToolSummoner
             message[0] = RobotArmICD.OPERATION_CALIBRATE;
             Array.Copy(servoOffsets, 0, message, 1, servoOffsets.Length);
 
-            bool ackReceived = false;
-            bool completeReceived = false;
-
-
-
-            messagesToSendQueue.Enqueue(message);
-
-            // wait for message ack and message complete
-            return ackReceived && (!waitUntilCompletion || completeReceived);
+            return QueueMessage(message, RobotArmICD.OPERATION_CALIBRATE, waitUntilCompletion);
         }
 
         public bool SendMessage_SetPosition(byte memoryIndex, byte[] servoValues, bool waitUntilCompletion)
         {
-            if (servoValues is null || servoValues.Length != 5) return false;
+            if (servoValues is null || servoValues.Length != 6) return false;
             // Will have 1 operation + 7 parameters
             byte[] message = new byte[8];
 
@@ -165,15 +235,7 @@ namespace ToolSummoner
             message[1] = memoryIndex;
             Array.Copy(servoValues, 0, message, 2, servoValues.Length);
 
-            bool ackReceived = false;
-            bool completeReceived = false;
-
-
-
-            messagesToSendQueue.Enqueue(message);
-
-            // wait for message ack and message complete
-            return ackReceived && (!waitUntilCompletion || completeReceived);
+            return QueueMessage(message, RobotArmICD.OPERATION_SET_POS, waitUntilCompletion);
         }
 
         public bool SendMessage_GoToPosition(byte memoryIndex, bool waitUntilCompletion)
@@ -181,12 +243,7 @@ namespace ToolSummoner
             // Will have 1 operation + 1 parameter
             byte[] message = { RobotArmICD.OPERATION_GOTO_POS, memoryIndex };
 
-            bool ackReceived = false;
-            bool completeReceived = false;
-            messagesToSendQueue.Enqueue(message);
-
-            // wait for message ack and message complete
-            return ackReceived && (!waitUntilCompletion || completeReceived);
+            return QueueMessage(message, RobotArmICD.OPERATION_GOTO_POS, waitUntilCompletion);
         }
 
         public bool SendMessage_SetServo(byte[] servoValues, bool useOffsets, bool waitUntilCompletion)
@@ -199,12 +256,7 @@ namespace ToolSummoner
             message[7] = (byte)((useOffsets) ? 0x01 : 0x00);
             Array.Copy(servoValues, 0, message, 1, servoValues.Length);
 
-            bool ackReceived = false;
-            bool completeReceived = false;
-            messagesToSendQueue.Enqueue(message);
-
-            // wait for message ack and message complete
-            return ackReceived && (!waitUntilCompletion || completeReceived);
+            return QueueMessage(message, RobotArmICD.OPERATION_SET_SERVO, waitUntilCompletion);
         }
 
         public bool SendMessage_Grab(bool waitUntilCompletion)
@@ -212,12 +264,7 @@ namespace ToolSummoner
             // Will have 1 operation + 0 parameters
             byte[] message = { RobotArmICD.OPERATION_GRAB };
             
-            bool ackReceived = false;
-            bool completeReceived = false;
-            messagesToSendQueue.Enqueue(message);
-
-            // wait for message ack and message complete
-            return ackReceived && (!waitUntilCompletion || completeReceived);
+            return QueueMessage(message, RobotArmICD.OPERATION_GRAB, waitUntilCompletion);
         }
 
         public bool SendMessage_Drop(bool waitUntilCompletion)
@@ -225,12 +272,7 @@ namespace ToolSummoner
             // Will have 1 operation + 0 parameters
             byte[] message = { RobotArmICD.OPERATION_DROP };
 
-            bool ackReceived = false;
-            bool completeReceived = false;
-            messagesToSendQueue.Enqueue(message);
-
-            // wait for message ack and message complete
-            return ackReceived && (!waitUntilCompletion || completeReceived);
+            return QueueMessage(message, RobotArmICD.OPERATION_DROP, waitUntilCompletion);
         }
 
         public bool SendMessage_LogPosition(byte memoryIndex, bool waitUntilCompletion)
@@ -238,12 +280,7 @@ namespace ToolSummoner
             // Will have 1 operation + 1 parameter
             byte[] message = { RobotArmICD.OPERATION_LOG_POS, memoryIndex };
 
-            bool ackReceived = false;
-            bool completeReceived = false;
-            messagesToSendQueue.Enqueue(message);
-
-            // wait for message ack and message complete
-            return ackReceived && (!waitUntilCompletion || completeReceived);
+            return QueueMessage(message, RobotArmICD.OPERATION_LOG_POS, waitUntilCompletion);
         }
 
         public bool SendMessage_RequestVersionInfo(bool waitUntilCompletion)
@@ -251,15 +288,8 @@ namespace ToolSummoner
             // Will have 1 operation + 0 parameters
             byte[] message = { RobotArmICD.OPERATION_REQ_VER_INFO };
 
-            bool ackReceived = false;
-            bool completeReceived = false;
-            messagesToSendQueue.Enqueue(message);
-
-            // wait for message ack and message complete
-            return ackReceived && (!waitUntilCompletion || completeReceived);
+            return QueueMessage(message, RobotArmICD.OPERATION_REQ_VER_INFO, waitUntilCompletion);
         }
-
-
 
         private void SendMessageOverSerial(byte[] messageContents) // Includes both operation and the parameters
         {
@@ -268,24 +298,10 @@ namespace ToolSummoner
             fullMessage[0] = RobotArmICD.COMMS_START_BYTE_1;
             fullMessage[1] = RobotArmICD.COMMS_START_BYTE_2;
             Array.Copy(messageContents, 0, fullMessage, 2, messageContentsLength);
-            fullMessage[messageContentsLength + 2] = RobotArmICD.COMMS_START_BYTE_2;
+            fullMessage[messageContentsLength + 2] = RobotArmICD.COMMS_END_BYTE;
 
+            Debug.WriteLine($"Sending {Convert.ToHexString(fullMessage)}");
             serialPort.Write(fullMessage, 0, fullMessage.Length);
-        }
-
-        public void SendMessage(byte operation, byte[]? parameters = null)
-        {
-            int parameterCount = parameters?.Length ?? 0;
-            byte[] message = new byte[parameterCount + 1];
-
-            message[0] = operation;
-
-            if (parameters is not null)
-            {
-                Array.Copy(parameters, 0, message, 1, parameterCount);
-            }
-
-            messagesToSendQueue.Enqueue(message);
         }
 
         private static string DecodeGeneralMessage(byte[] originalBuffer)
@@ -300,7 +316,7 @@ namespace ToolSummoner
             return output.ToString();
         }
 
-        static public bool TestPort(string comPort)
+        public static bool TestPort(string comPort)
         {
             SerialPort testPort = new SerialPort(comPort, DefaultBaudRate);
             bool portValid = false;
@@ -373,6 +389,7 @@ namespace ToolSummoner
             {
                 try
                 {
+                    if (!port.IsOpen) port.Open();
                     int value = port.ReadByte();
 
                     switch (state)
@@ -421,6 +438,10 @@ namespace ToolSummoner
                 catch (TimeoutException)
                 {
                     return null;
+                }
+                catch (Exception ex)
+                {
+                    ErrorHandler.AddError(new Error(ex.HResult, ex.Message));
                 }
             }
             

@@ -91,7 +91,6 @@ int8_t offsets[SERVO_COUNT];
 
 // Stores the current position data for reference
 uint8_t currentPosition[SERVO_COUNT];
-uint8_t currentOffsets[SERVO_COUNT];
 
 // --------------------------------------------------
 // ==================================================
@@ -241,6 +240,7 @@ unsigned long after = 0;
     before = micros();
     #endif
     
+    DEBUG_MESSAGE("Starting process messages");
     ProcessMessages();
 
     #ifdef DEBUG
@@ -250,8 +250,8 @@ unsigned long after = 0;
     digitalWrite(LED_SERIAL_IN_INDICATOR_PIN, LOW);
   }
 
-  DEBUG_MESSAGE("Hello is anyone there?");
-  delay(60);
+  //delay(100);
+  //DEBUG_MESSAGE("Is anyone there?");
 }
 
 void debugLoop()
@@ -331,12 +331,13 @@ void ProcessMessages()
   int parameterCount = 0;
   int parametersAdded = 0;
   bool messageFinished = false;
-  uint8_t* message; // initialise pointer - allocate memory later when we know the amount
+  uint8_t* message = nullptr; // initialise pointer - allocate memory later when we know the amount
 
   unsigned long operationStart = millis();
   while (millis() - operationStart < timeoutMS && !messageFinished)
   {
-    currentByte = Serial.read(&currentByte, sizeof(uint8_t)); // Read just one byte
+    Serial.read(&currentByte, sizeof(uint8_t)); // Read just one byte
+    DEBUG_MESSAGE("Start of while loop. Byte is (0x%02x). Elapsed time is %ul ms", currentByte, millis() - operationStart);
 
     switch (state)
     {
@@ -344,6 +345,7 @@ void ProcessMessages()
         if (currentByte == COMMS_START_BYTE_1)
         {
           state = 1;
+          DEBUG_MESSAGE("Moving to state 1");
         }
         break;
 
@@ -351,10 +353,12 @@ void ProcessMessages()
         if (currentByte == COMMS_START_BYTE_2)
         {
           state = 2;
+          DEBUG_MESSAGE("Moving to state 2");
         }
         else if (currentByte != COMMS_START_BYTE_1)
         {
           state = 0;
+          DEBUG_MESSAGE("Moving back to state 0 from 1");
         }
         // If we find start byte 2 here (as expected), move onto parsing the rest of the message
         // If we find start byte 1 here, indicates the start of a new message (Weird but at least prepare for it)
@@ -367,7 +371,11 @@ void ProcessMessages()
         message[0] = currentByte;
         state = 3;
         
-        if (message == nullptr) RaiseError(ErrorCode::ERROR_CONFUSING_MESSAGE);
+        if (message == nullptr) 
+        {
+          DEBUG_MESSAGE("Attempting to raise confusing message error");
+          RaiseError(ErrorCode::ERROR_CONFUSING_MESSAGE);
+        }
         break;
 
       case 3: // Read parameters
@@ -376,6 +384,7 @@ void ProcessMessages()
           parametersAdded++;
           if (parametersAdded > parameterCount) // We have more parameters than expected
           {
+            DEBUG_MESSAGE("Attempting to raise invalid param count error");
             RaiseError(ErrorCode::ERROR_INVALID_PARAMETER_COUNT);
             messageFinished = true;
           }
@@ -388,43 +397,57 @@ void ProcessMessages()
         {
           if (parametersAdded < parameterCount) // We have fewer parameters than expected
           {
+            DEBUG_MESSAGE("Attempting to raise invalid param count error");
             RaiseError(ErrorCode::ERROR_INVALID_PARAMETER_COUNT);
           }
           else
           {
             // Now do the respective operation
+            DEBUG_MESSAGE("About to send ACK");
             SendMessageAck();
+            DEBUG_MESSAGE("Just sent ACK");
 
             switch(message[0]) // operation code
             {
               case OPERATION_CALIBRATE:
+                DEBUG_MESSAGE("Calibrate");
                 OperationCall_Calibrate(&message[1], parametersAdded);
                 break;
               case OPERATION_SET_POS:
+                DEBUG_MESSAGE("Set pos");
                 OperationCall_SetPosition(&message[1], parametersAdded);
                 break;
               case OPERATION_GOTO_POS:
+                DEBUG_MESSAGE("Goto pos");
                 OperationCall_GoToPosition(message[1]);
                 break;
               case OPERATION_SET_SERVO:
+                DEBUG_MESSAGE("Set servo");
                 OperationCall_SetServos(&message[1], parametersAdded);
                 break;
               case OPERATION_GRAB:
+                DEBUG_MESSAGE("Grab");
                 OperationCall_Grab();
                 break;
               case OPERATION_DROP:
+                DEBUG_MESSAGE("Drop");
                 OperationCall_Drop();
                 break;
               case OPERATION_LOG_POS:
+                DEBUG_MESSAGE("Log pos");
                 OperationCall_LogPosition(message[1]);
                 break;
               case OPERATION_REQ_VER_INFO:
+                DEBUG_MESSAGE("Calibrate");
                 OperationCall_VersionInfoRequested();
                 break;
               default:
+                DEBUG_MESSAGE("Invalid operation error");
                 RaiseError(ErrorCode::ERROR_INVALID_OPERATION);
+                free(message); // Because we are using return to leave early, but still need to de-allocate the memory.
                 return;
             }
+            DEBUG_MESSAGE("Sending operation completed message");
             SendOperationCompletedMessage(message[0]);
           }
           messageFinished = true;
@@ -432,7 +455,8 @@ void ProcessMessages()
         break;
     }
   }
-  free(message);
+  DEBUG_MESSAGE("Out of while loop now");
+  if (message != nullptr) free(message);
 }
 
 // Expecting 6 parameters
@@ -445,6 +469,7 @@ void ProcessMessages()
 // Instructs the robot arm circuit to use the following offsets for the servo values. 
 void OperationCall_Calibrate(uint8_t* parameters, uint8_t parameterCount)
 {
+  DEBUG_MESSAGE("Calibrate message received with %d parameters: %d(%02x), %d(%02x), %d(%02x), %d(%02x), %d(%02x), %d(%02x)", parameterCount, parameters[0], parameters[0], parameters[1], parameters[1], parameters[2], parameters[2], parameters[3], parameters[3], parameters[4], parameters[4], parameters[5], parameters[5]);
   if (parameterCount != 6)
   {
     RaiseError(ErrorCode::ERROR_INVALID_PARAMETER_COUNT);
@@ -460,7 +485,7 @@ void OperationCall_Calibrate(uint8_t* parameters, uint8_t parameterCount)
   memcpy(offsets, signedOffsets, 6);
   SaveOffsets();
 
-  DEBUG_MESSAGE("Offsets now set to %d(%02x), %d(%02x), %d(%02x), %d(%02x), %d(%02x), %d(%02x).\n", parameters[0], parameters[0], parameters[1], parameters[1], parameters[2], parameters[2], parameters[3], parameters[3], parameters[4], parameters[4], parameters[5], parameters[5]);
+  DEBUG_MESSAGE("Offsets now set to %d(%02x), %d(%02x), %d(%02x), %d(%02x), %d(%02x), %d(%02x).", parameters[0], parameters[0], parameters[1], parameters[1], parameters[2], parameters[2], parameters[3], parameters[3], parameters[4], parameters[4], parameters[5], parameters[5]);
 }
 
 // Expecting 7 parameters
@@ -474,6 +499,7 @@ void OperationCall_Calibrate(uint8_t* parameters, uint8_t parameterCount)
 // Saves a set position in memory that can be referenced later. 
 void OperationCall_SetPosition(uint8_t* parameters, uint8_t parameterCount)
 {
+  DEBUG_MESSAGE("Set position message received with %d parameters:  %d(0x%02x), %d(0x%02x), %d(0x%02x), %d(0x%02x), %d(0x%02x), %d(0x%02x), %d(0x%02x), %d(0x%02x)", parameterCount, parameters[0], parameters[0], parameters[1], parameters[1], parameters[2], parameters[2], parameters[3], parameters[3], parameters[4], parameters[4], parameters[5], parameters[5], parameters[6], parameters[6]);
   if (parameterCount != 7)
   {
     RaiseError(ErrorCode::ERROR_INVALID_PARAMETER_COUNT);
@@ -482,7 +508,7 @@ void OperationCall_SetPosition(uint8_t* parameters, uint8_t parameterCount)
 
   memcpy(positionData[parameters[0]], &parameters[1], 6 * sizeof(uint8_t));
 
-  DEBUG_MESSAGE("Position data at address %d now set to %d(%02x), %d(%02x), %d(%02x), %d(%02x), %d(%02x), %d(%02x).\n", parameters[0], parameters[1], parameters[1], parameters[2], parameters[2], parameters[3], parameters[3], parameters[4], parameters[4], parameters[5], parameters[5], parameters[6], parameters[6]);
+  DEBUG_MESSAGE("Position data at address %d now set to %d(%02x), %d(%02x), %d(%02x), %d(%02x), %d(%02x), %d(%02x).", parameters[0], parameters[1], parameters[1], parameters[2], parameters[2], parameters[3], parameters[3], parameters[4], parameters[4], parameters[5], parameters[5], parameters[6], parameters[6]);
 }
 
 // Expecting 1 parameter
@@ -491,13 +517,14 @@ void OperationCall_SetPosition(uint8_t* parameters, uint8_t parameterCount)
 // Will raise an error if that memory location has not yet been set. 
 void OperationCall_GoToPosition(uint8_t index)
 {
+  DEBUG_MESSAGE("Goto position message received with parameter:  %d(%02x)", index);
   // @todo Implement moving the servos. Need to add bound checks of course, also factoring in offsets. Possible values [0x00,0xCD]
   for (int i = 0; i < SERVO_COUNT; i++)
-    SetServoPosition(i, positionData[index][i], true);
   {
+    SetServoPosition(i, positionData[index][i], true);
   }
 
-  DEBUG_MESSAGE("Servos moving to %d(%02x), %d(%02x), %d(%02x), %d(%02x), %d(%02x), %d(%02x).\n", positionData[index][0], positionData[index][0], positionData[index][1], positionData[index][1], positionData[index][2], positionData[index][2], positionData[index][3], positionData[index][3], positionData[index][4], positionData[index][4], positionData[index][5], positionData[index][5]);
+  DEBUG_MESSAGE("Servos moving to %d(%02x), %d(%02x), %d(%02x), %d(%02x), %d(%02x), %d(%02x).", positionData[index][0], positionData[index][0], positionData[index][1], positionData[index][1], positionData[index][2], positionData[index][2], positionData[index][3], positionData[index][3], positionData[index][4], positionData[index][4], positionData[index][5], positionData[index][5]);
 }
 
 // Expecting 7 parameters
@@ -513,6 +540,7 @@ void OperationCall_GoToPosition(uint8_t index)
 // This is since if one is looking to determine the correct calibration offsets, it would be ideal not to add the existing offsets. 
 void OperationCall_SetServos(uint8_t* parameters, uint8_t parameterCount)
 {
+  DEBUG_MESSAGE("Set servos message received with %d parameters:  %d(%02x), %d(%02x), %d(%02x), %d(%02x), %d(%02x), %d(%02x), %d(%02x), %d(%02x)", parameterCount, parameters[0], parameters[0], parameters[1], parameters[1], parameters[2], parameters[2], parameters[3], parameters[3], parameters[4], parameters[4], parameters[5], parameters[5], parameters[6], parameters[6]);
   if (parameterCount != 7)
   {
     RaiseError(ErrorCode::ERROR_INVALID_PARAMETER_COUNT);
@@ -522,18 +550,20 @@ void OperationCall_SetServos(uint8_t* parameters, uint8_t parameterCount)
   bool useOffset = (parameters[6] == 0x01);
 
   for (int i = 0; i < SERVO_COUNT; i++)
-    SetServoPosition(i, parameters[i], useOffset);
   {
+    SetServoPosition(i, parameters[i], useOffset);
   }
 
-  DEBUG_MESSAGE("Servos manually moved to %d(%02x), %d(%02x), %d(%02x), %d(%02x), %d(%02x), %d(%02x). Offset is%s applied.\n", parameters[0], parameters[0], parameters[1], parameters[1], parameters[2], parameters[2], parameters[3], parameters[3], parameters[4], parameters[4], parameters[5], parameters[5], useOffset ? "" : " not");
+  DEBUG_MESSAGE("Servos manually moved to %d(%02x), %d(%02x), %d(%02x), %d(%02x), %d(%02x), %d(%02x). Offset is%s applied.", parameters[0], parameters[0], parameters[1], parameters[1], parameters[2], parameters[2], parameters[3], parameters[3], parameters[4], parameters[4], parameters[5], parameters[5], useOffset ? "" : " not");
 }
 
 // 0 Parameters expected.
 // Instructs the robot arm to drop its current item (i.e. Set the Gripper servo value to open) 
 void OperationCall_Grab()
 {
-  SetServoPosition(SERVO_GRIPPER_PWM_PIN, SERVO_POSITION_LIMITS[static_cast<uint8_t>(ServoIndices::GRIPPER)][0], true);
+  DEBUG_MESSAGE("Grab message received");
+
+  SetServoPosition(static_cast<uint8_t>(ServoIndices::GRIPPER), SERVO_POSITION_LIMITS[static_cast<uint8_t>(ServoIndices::GRIPPER)][0], true);
   // Assuming gripped servo opens when set to min value. Needs experimenting
 
   DEBUG_MESSAGE("Item has been grabbed.");
@@ -543,7 +573,8 @@ void OperationCall_Grab()
 // Instructs the robot arm to drop its current item (i.e. Set the Gripper servo value to open) 
 void OperationCall_Drop()
 {
-  SetServoPosition(SERVO_GRIPPER_PWM_PIN, SERVO_POSITION_LIMITS[static_cast<uint8_t>(ServoIndices::GRIPPER)][1], true);
+  DEBUG_MESSAGE("Drop message received");
+  SetServoPosition(static_cast<uint8_t>(ServoIndices::GRIPPER), SERVO_POSITION_LIMITS[static_cast<uint8_t>(ServoIndices::GRIPPER)][1], true);
   // Assuming gripped servo opens when set to max value. Needs experimenting
 
   DEBUG_MESSAGE("Item has been dropped.");
@@ -567,9 +598,11 @@ void OperationCall_Drop()
 // Instructs the embedded software to log (respond with) the stored position values at a given stored location, for verification purposes. 
 void OperationCall_LogPosition(uint8_t index)
 {
-  uint8_t message[12] = {currentPosition[0], currentPosition[1], currentPosition[2], currentPosition[3], currentPosition[4], currentPosition[5], currentOffsets[0], currentOffsets[1], currentOffsets[2], currentOffsets[3], currentOffsets[4], currentOffsets[5]};
+  DEBUG_MESSAGE("Log position message received with parameter:  %d(%02x)", index);
 
-  SendMessage(message, 12);
+  uint8_t message[13] = {RESPONSE_STORED_POS, currentPosition[0], currentPosition[1], currentPosition[2], currentPosition[3], currentPosition[4], currentPosition[5], offsets[0], offsets[1], offsets[2], offsets[3], offsets[4], offsets[5]};
+
+  SendMessage(message, 13);
 }
 
 // 0 Parameters expected.
@@ -579,6 +612,8 @@ void OperationCall_LogPosition(uint8_t index)
 // Requests version info from the embedded software 
 void OperationCall_VersionInfoRequested()
 {
+  DEBUG_MESSAGE("Version info request message received");
+
   uint8_t* message = (uint8_t*)malloc(3 * sizeof(uint8_t));
   message[0] = RESPONSE_VERSION_INFO;
   message[1] = SOFTWARE_VER_MAJOR;
@@ -625,18 +660,21 @@ bool SetServoPosition(uint8_t servoIndex, uint8_t value, bool useOffset) // valu
 // Returns if the operation was valid or not
 {
   int16_t correctedValue = value;
-  if (useOffset) correctedValue += value; // faster when compiled than summing with a shorthand if statement
+  if (useOffset) correctedValue += offsets[servoIndex]; // faster when compiled than summing with a shorthand if statement
 
   if (correctedValue > SERVO_POSITION_LIMITS[servoIndex][1]) // If greater than this servo's set maximum value
   {
+    DEBUG_MESSAGE("Servo request too high. Value: %d, Corrected value: %d, Limit: %d. index is %d, useOffset is %d", value, correctedValue, servoIndex, SERVO_POSITION_LIMITS[servoIndex][1], useOffset);
     RaiseError(ErrorCode::ERROR_SERVO_W_OFFSET_OUT_OF_RANGE);
   }
   else if (correctedValue < SERVO_POSITION_LIMITS[servoIndex][0]) // If lower than this servo's set minimum value
   {
+    DEBUG_MESSAGE("Servo request too low. Value: %d, Corrected value: %d, Limit: %d, index is %d, useOffset is %d", value, correctedValue, servoIndex, SERVO_POSITION_LIMITS[servoIndex][0], useOffset);
     RaiseError(ErrorCode::ERROR_SERVO_W_OFFSET_OUT_OF_RANGE);
   }
   else if (servoIndex >= SERVO_COUNT)
   {
+    DEBUG_MESSAGE("Servo request has invalid servo index");
     RaiseError(ErrorCode::ERROR_INVALID_PARAMETER_VALUE);
   }
   else
@@ -648,7 +686,6 @@ bool SetServoPosition(uint8_t servoIndex, uint8_t value, bool useOffset) // valu
 
     // Update current position values
     currentPosition[servoIndex] = value;
-    currentOffsets[servoIndex] = correctedValue - value;
     return true;
   }
   return false;

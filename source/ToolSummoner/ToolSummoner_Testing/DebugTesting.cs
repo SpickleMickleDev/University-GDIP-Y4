@@ -2,9 +2,12 @@
 
 namespace ToolSummoner_Testing
 {
+
     [TestClass]
     public sealed class DebugTesting
     {
+        const string testPort = "COM5";
+        
         [TestMethod]
         /// <summary>
         /// 
@@ -20,17 +23,26 @@ namespace ToolSummoner_Testing
         [TestMethod]
         public void TestListenForGeneralMessages()
         {
-            SoftwareController software = new SoftwareController();
-
-            RobotArmController controller = new RobotArmController("COM5");
+            RobotArmController controller = new RobotArmController(testPort);
 
             Task.Run(() => controller.Run());
             Task.Run(() =>
             {
                 Thread.Sleep(2000);
-                controller.SendMessage(RobotArmICD.OPERATION_DROP);
+                controller.SendMessage_LogPosition(0, false);
             });
-            
+        }
+
+        [TestMethod]
+        public void SpamMessages()
+        {
+            RobotArmController controller = new RobotArmController(testPort);
+
+            for (int i = 0; i < 1000; i++)
+            {
+                controller.SendMessage_Grab(false);
+                Thread.Sleep(2);
+            }
         }
 
         [TestMethod]

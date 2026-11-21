@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Windows;
 
 namespace ToolSummoner
 {
@@ -20,25 +20,38 @@ namespace ToolSummoner
 
     internal static class ErrorHandler
     {
+        public delegate void AlertUI(Error error, EventWaitHandle eventWaiter);
+        public static AlertUI RaiseError;
+
         private volatile static List<Error> errorList; // volatile to ensure that the list is always up to date across threads and is more threadsafe (in case we incorporate multithreading later)
+        
+        private static bool initialised = false;
+
+        private static void Initialise()
+        {
+            initialised = true;
+            errorList = new List<Error>();
+        }
 
         public static void AddError(Error error)
         {
+            if (!initialised) Initialise();
             EventWaitHandle threadHalter = new EventWaitHandle(false, EventResetMode.AutoReset);
 
-            Task.Run(() =>
-            {
-                errorList.Add(error); // keeps a history of all errors that have occurred in the application, for logging purposes
-                DisplayError(error);
-            });
+            errorList.Add(error); // keeps a history of all errors that have occurred in the application, for logging purposes
+            DisplayError(error, threadHalter);
+
             threadHalter.WaitOne(); // wait for error message to be closed before continuing. If the error is critical, the application will close and this will never be reached.
         }
 
-        private static void DisplayError(Error error)
+        private static void DisplayError(Error error, EventWaitHandle eventWaiter)
         {
             // Prompt view thread to display the error to the user in a WPF window
             // If the error is critical, any action on the wpf window will close the application.
             // final logging of all errors to occur when the application is closed
+
+            RaiseError.Invoke(error, eventWaiter); // UI handling this will have to release the event wait handle
+
         }
 
 

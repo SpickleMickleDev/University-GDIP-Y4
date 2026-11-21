@@ -7,6 +7,113 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <GroupBox x:Name="MainScreenItems"
+                  Header="Main screen items"
+                  Margin="10,350,10,0"
+                  Grid.Row="1"
+                  Visibility="Visible">
+            <Grid>
+                <Button Content="Open Debug Console" HorizontalAlignment="Right" Margin="0,10,27,10" Click="OpenDebugConsoleButton_Click"/>
+                <ComboBox Name="PortSelectionComboBox" HorizontalAlignment="Left" Margin="0,10,0,10" Width="120" MouseEnter="UpdatePortSelectionOptions"/>
+            </Grid>
+        </GroupBox>
+
+        <GroupBox x:Name="DebugItems"
+                  Header="Items for debug comms testing"
+                  Margin="0"
+                  Grid.Row="0"
+                  Visibility="Collapsed">
+            <Grid>
+                <Button Content="Send 'Calibrate' message" HorizontalAlignment="Left" Margin="55,20,0,0" VerticalAlignment="Top" Click="Debug_SendMessage_Calibrate"/>
+                <Button Content="Send 'Set Position' message" HorizontalAlignment="Left" Margin="55,60,0,0" VerticalAlignment="Top" Click="Debug_SendMessage_SetPosition"/>
+                <Button Content="Send 'Go To Position' message" HorizontalAlignment="Left" Margin="55,100,0,0" VerticalAlignment="Top" Click="Debug_SendMessage_GoToPosition"/>
+                <Button Content="Send 'Set Servo' message" HorizontalAlignment="Left" Margin="55,140,0,0" VerticalAlignment="Top" Click="Debug_SendMessage_SetServo"/>
+                <Button Content="Send 'Grab' message" HorizontalAlignment="Left" Margin="55,180,0,0" VerticalAlignment="Top" Click="Debug_SendMessage_Grab"/>
+                <Button Content="Send 'Drop' message" HorizontalAlignment="Left" Margin="55,220,0,0" VerticalAlignment="Top" Click="Debug_SendMessage_Drop"/>
+                <Button Content="Send 'Log Position' message" HorizontalAlignment="Left" Margin="55,260,0,0" VerticalAlignment="Top" Click="Debug_SendMessage_LogPosition"/>
+                <Button Content="Send 'Request Version Info' message" HorizontalAlignment="Left" Margin="55,300,0,0" VerticalAlignment="Top" Click="Debug_SendMessage_RequestVersionInfo"/>
+
+                <Slider Name ="ValueSlider1" HorizontalAlignment="Right" Margin="0,-280,57,0" VerticalAlignment="Center" Width="120" Value="0" Minimum="0" Maximum="205" SmallChange="1" LargeChange="10" ValueChanged="ValueSlider1Changed"/>
+                <Label Content="Value 1" HorizontalAlignment="Right" Margin="0,-280,177,0" VerticalAlignment="Center"/>
+                <Label Name="ValueSlider1Previewer" Content="0" HorizontalAlignment="Right" Margin="10,-280,0,0" VerticalAlignment="Center" Width="60"/>
+
+                <Slider Name ="ValueSlider2" HorizontalAlignment="Right" Margin="0,-240,57,0" VerticalAlignment="Center" Width="120" Value="0" Minimum="0" Maximum="205" SmallChange="1" LargeChange="10" ValueChanged="ValueSlider2Changed"/>
+                <Label Content="Value 2" HorizontalAlignment="Right" Margin="0,-240,177,0" VerticalAlignment="Center"/>
+                <Label Name="ValueSlider2Previewer" Content="0" HorizontalAlignment="Right" Margin="10,-240,0,0" VerticalAlignment="Center" Width="60"/>
+
+                <Slider Name ="ValueSlider3" HorizontalAlignment="Right" Margin="0,-200,57,0" VerticalAlignment="Center" Width="120" Value="0" Minimum="0" Maximum="205" SmallChange="1" LargeChange="10" ValueChanged="ValueSlider3Changed"/>
+                <Label Content="Value 3" HorizontalAlignment="Right" Margin="0,-200,177,0" VerticalAlignment="Center"/>
+                <Label Name="ValueSlider3Previewer" Content="0" HorizontalAlignment="Right" Margin="10,-200,0,0" VerticalAlignment="Center" Width="60"/>
+
+                <Slider Name ="ValueSlider4" HorizontalAlignment="Right" Margin="0,-160,57,0" VerticalAlignment="Center" Width="120" Value="0" Minimum="0" Maximum="205" SmallChange="1" LargeChange="10" ValueChanged="ValueSlider4Changed"/>
+                <Label Content="Value 4" HorizontalAlignment="Right" Margin="0,-160,177,0" VerticalAlignment="Center"/>
+                <Label Name="ValueSlider4Previewer" Content="0" HorizontalAlignment="Right" Margin="10,-160,0,0" VerticalAlignment="Center" Width="60"/>
+
+                <Slider Name ="ValueSlider5" HorizontalAlignment="Right" Margin="0,-120,57,0" VerticalAlignment="Center" Width="120" Value="0" Minimum="0" Maximum="205" SmallChange="1" LargeChange="10" ValueChanged="ValueSlider5Changed"/>
+                <Label Content="Value 5" HorizontalAlignment="Right" Margin="0,-120,177,0" VerticalAlignment="Center"/>
+                <Label Name="ValueSlider5Previewer" Content="0" HorizontalAlignment="Right" Margin="10,-120,0,0" VerticalAlignment="Center" Width="60"/>
+
+                <Slider Name ="ValueSlider6" HorizontalAlignment="Right" Margin="0,-80,57,0" VerticalAlignment="Center" Width="120" Value="0" Minimum="0" Maximum="205" SmallChange="1" LargeChange="10" ValueChanged="ValueSlider6Changed"/>
+                <Label Content="Value 6" HorizontalAlignment="Right" Margin="0,-80,177,0" VerticalAlignment="Center"/>
+                <Label Name="ValueSlider6Previewer" Content="0" HorizontalAlignment="Right" Margin="10,-80,0,0" VerticalAlignment="Center" Width="60"/>
+
+
+                <Slider Name ="OffsetSlider1" HorizontalAlignment="Right" Margin="0,-40,57,0" VerticalAlignment="Center" Width="120" Value="0" Minimum="-128" Maximum="127" SmallChange="1" LargeChange="10" ValueChanged="OffsetSlider1Changed"/>
+                <Label Content="Offset 1" HorizontalAlignment="Right" Margin="0,-40,177,0" VerticalAlignment="Center"/>
+                <Label Name="OffsetSlider1Previewer" Content="0" HorizontalAlignment="Right" Margin="10,-40,0,0" VerticalAlignment="Center" Width="60"/>
+
+                <Slider Name ="OffsetSlider2" HorizontalAlignment="Right" Margin="0,0,57,0" VerticalAlignment="Center" Width="120" Value="0" Minimum="-128" Maximum="127" SmallChange="1" LargeChange="10" ValueChanged="OffsetSlider2Changed"/>
+                <Label Content="Offset 2" HorizontalAlignment="Right" Margin="0,0,177,0" VerticalAlignment="Center"/>
+                <Label Name="OffsetSlider2Previewer" Content="0" HorizontalAlignment="Right" Margin="10,0,0,0" VerticalAlignment="Center" Width="60"/>
+
+                <Slider Name ="OffsetSlider3" HorizontalAlignment="Right" Margin="0,40,57,0" VerticalAlignment="Center" Width="120" Value="0" Minimum="-128" Maximum="127" SmallChange="1" LargeChange="10" ValueChanged="OffsetSlider3Changed"/>
+                <Label Content="Offset 3" HorizontalAlignment="Right" Margin="0,40,177,0" VerticalAlignment="Center"/>
+                <Label Name="OffsetSlider3Previewer" Content="0" HorizontalAlignment="Right" Margin="10,40,0,0" VerticalAlignment="Center" Width="60"/>
+
+                <Slider Name ="OffsetSlider4" HorizontalAlignment="Right" Margin="0,80,57,0" VerticalAlignment="Center" Width="120" Value="0" Minimum="-128" Maximum="127" SmallChange="1" LargeChange="10" ValueChanged="OffsetSlider4Changed"/>
+                <Label Content="Offset 4" HorizontalAlignment="Right" Margin="0,80,177,0" VerticalAlignment="Center"/>
+                <Label Name="OffsetSlider4Previewer" Content="0" HorizontalAlignment="Right" Margin="10,80,0,0" VerticalAlignment="Center" Width="60"/>
+
+                <Slider Name ="OffsetSlider5" HorizontalAlignment="Right" Margin="0,120,57,0" VerticalAlignment="Center" Width="120" Value="0" Minimum="-128" Maximum="127" SmallChange="1" LargeChange="10" ValueChanged="OffsetSlider5Changed"/>
+                <Label Content="Offset 5" HorizontalAlignment="Right" Margin="0,120,177,0" VerticalAlignment="Center"/>
+                <Label Name="OffsetSlider5Previewer" Content="0" HorizontalAlignment="Right" Margin="10,120,0,0" VerticalAlignment="Center" Width="60"/>
+
+                <Slider Name ="OffsetSlider6" HorizontalAlignment="Right" Margin="0,160,57,0" VerticalAlignment="Center" Width="120" Value="0" Minimum="-128" Maximum="127" SmallChange="1" LargeChange="10" ValueChanged="OffsetSlider6Changed"/>
+                <Label Content="Offset 6" HorizontalAlignment="Right" Margin="0,160,177,0" VerticalAlignment="Center"/>
+                <Label Name="OffsetSlider6Previewer" Content="0" HorizontalAlignment="Right" Margin="10,160,0,0" VerticalAlignment="Center" Width="60"/>
+
+                <Slider Name ="MemoryIndexSlider" HorizontalAlignment="Right" Margin="0,200,57,0" VerticalAlignment="Center" Width="120" Value="0" Minimum="0" Maximum="10" SmallChange="1" LargeChange="2" ValueChanged="MemoryIndexSliderChanged"/>
+                <Label Content="Memory Index" HorizontalAlignment="Right" Margin="0,200,177,0" VerticalAlignment="Center"/>
+                <Label Name="MemoryIndexSliderPreviewer" Content="0" HorizontalAlignment="Right" Margin="10,200,0,0" VerticalAlignment="Center" Width="60"/>
+
+                <Slider Name ="UseOffsetSlider" HorizontalAlignment="Right" Margin="0,240,57,0" VerticalAlignment="Center" Width="120" Value="0" Minimum="0" Maximum="1" SmallChange="1" LargeChange="1" ValueChanged="UseOffsetSliderChanged"/>
+                <Label Content="Use Offset?" HorizontalAlignment="Right" Margin="0,240,177,0" VerticalAlignment="Center"/>
+                <Label Name="UseOffsetSliderPreviewer" Content="False" HorizontalAlignment="Right" Margin="10,240,0,0" VerticalAlignment="Center" Width="60"/>
+
+                <Label Content="Live" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="2,0,0,15"/>
+                <CheckBox Name="LiveMovementCheckbox" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,5" Click="LiveMovementCheckbox_Clicked"/>
+
+                <ListBox Name="MessageLog"
+                         HorizontalAlignment="Left"
+                         Margin="258,16,0,0"
+                         VerticalAlignment="Top"
+                         Width="261"
+                         Height="304"
+                         ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Left" />
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                </ListBox>
+            </Grid>
+        </GroupBox>
 
     </Grid>
 </Window>

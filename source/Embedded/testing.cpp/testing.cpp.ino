@@ -8,7 +8,7 @@
 // =============== Software constants ===============
 // ==================================================
 
-#define SOFTWARE_VER_MAJOR 0;
+#define SOFTWARE_VER_MAJOR 1;
 #define SOFTWARE_VER_MINOR 1;
 
 // --------------------------------------------------

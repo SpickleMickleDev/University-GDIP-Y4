@@ -14,7 +14,7 @@ namespace ToolSummoner
     {
         public const byte COMMS_START_BYTE_1 = 0xFF;
         public const byte COMMS_START_BYTE_2 = 0xF6;
-        public const byte COMMS_END_BYTE= 0x5F;
+        public const byte COMMS_END_BYTE = 0x5F;
 
         public const byte OPERATION_CALIBRATE = 0xD0;
         public const byte OPERATION_SET_POS = 0xD1;
@@ -43,7 +43,7 @@ namespace ToolSummoner
             ERROR_CONFUSING_MESSAGE = 0x03,
             ERROR_MEMORY_LOCATION_NOT_SET = 0x04,
             ERROR_SERVO_COMMAND_OUT_OF_RANGE = 0x05,
-            ERROR_SERVO_W_OFFSET_OUT_OF_RANGE =  0x06
+            ERROR_SERVO_W_OFFSET_OUT_OF_RANGE = 0x06
         };
     }
 
@@ -62,18 +62,18 @@ namespace ToolSummoner
         public event EventHandler<string>? MessageReceived;
         private void PublishMessage(string message)
         {
-            Debug.WriteLine(message); 
+            Debug.WriteLine(message);
             MessageReceived?.Invoke(this, message);
         }
 
-        public RobotArmController(string comPort, bool dtrEnable = true, bool rtsEnable = true, bool openPort=true)
+        public RobotArmController(string comPort, bool dtrEnable = true, bool rtsEnable = true, bool openPort = true)
         {
             serialPort = new SerialPort(comPort, DefaultBaudRate)
             {
                 DtrEnable = dtrEnable,
                 RtsEnable = rtsEnable,
                 Handshake = Handshake.None,
-                ReadTimeout = 1000 
+                ReadTimeout = 1000
             };
 
             if (openPort)
@@ -218,7 +218,7 @@ namespace ToolSummoner
             if (servoOffsets is null || servoOffsets.Length != 6) return false;
             // Will have 1 operation + 6 parameters
             byte[] message = new byte[7];
-            
+
             message[0] = RobotArmICD.OPERATION_CALIBRATE;
             Array.Copy(servoOffsets, 0, message, 1, servoOffsets.Length);
 
@@ -263,7 +263,7 @@ namespace ToolSummoner
         {
             // Will have 1 operation + 0 parameters
             byte[] message = { RobotArmICD.OPERATION_GRAB };
-            
+
             return QueueMessage(message, RobotArmICD.OPERATION_GRAB, waitUntilCompletion);
         }
 
@@ -294,7 +294,7 @@ namespace ToolSummoner
         private void SendMessageOverSerial(byte[] messageContents) // Includes both operation and the parameters
         {
             int messageContentsLength = messageContents.Length;
-            byte[] fullMessage = new byte[messageContentsLength+ 3];
+            byte[] fullMessage = new byte[messageContentsLength + 3];
             fullMessage[0] = RobotArmICD.COMMS_START_BYTE_1;
             fullMessage[1] = RobotArmICD.COMMS_START_BYTE_2;
             Array.Copy(messageContents, 0, fullMessage, 2, messageContentsLength);
@@ -308,7 +308,7 @@ namespace ToolSummoner
         {
             int count = originalBuffer.Length - 4;
             var output = new StringBuilder(count);
-            
+
             for (int i = 3; i < count + 3; i++)
             {
                 output.Append((char)originalBuffer[i]);
@@ -317,8 +317,15 @@ namespace ToolSummoner
         }
 
         public static bool TestPort(string comPort)
+        { // Overload for if we don't care about what the embedded software version is
+            return TestPort(comPort, out _);
+        }
+        public static bool TestPort(string comPort, out string versionInfo)
         {
             SerialPort testPort = new SerialPort(comPort, DefaultBaudRate);
+            versionInfo = "?.?";
+            testPort.DtrEnable = true;
+            testPort.RtsEnable = true;
             bool portValid = false;
             try
             {
@@ -334,10 +341,20 @@ namespace ToolSummoner
                 };
                 testPort.Write(buffer, 0, buffer.Length);
 
-                // wait for response
-                byte[]? response = ReadResponse(testPort, TimeSpan.FromMilliseconds(250), TimeSpan.FromMilliseconds(2000));
+                // wait for a response
+                // We may be receiving multiple messages so repeat many times with a short timeout
+                byte[]? response;
+                int attempts = 0;
+                int maxAttempts = 10;
 
-                // check response is valid
+                // Attempt to read a response. If no message found or the message type isn't a version info message then try again. Try a max of 10 times
+                do
+                {
+                    response = ReadResponse(testPort, TimeSpan.FromMilliseconds(250), TimeSpan.FromMilliseconds(2000));
+                    if (response != null && response[2] == RobotArmICD.RESPONSE_GENERAL_MESSAGE) attempts--; // If we are receigin a general message, do not add to our list of attempts.
+                } while ((response == null || response[2] != RobotArmICD.RESPONSE_VERSION_INFO) && ++attempts < maxAttempts);
+
+
                 if (response != null)
                 {
                     portValid = (response[0] == RobotArmICD.COMMS_START_BYTE_1) &&
@@ -347,10 +364,11 @@ namespace ToolSummoner
                               //(response[4] == ????) // minor version
                                 (response[5] == RobotArmICD.COMMS_END_BYTE);
 
-                    if (portValid)
+                    versionInfo = $"{response[3]:X2}.{response[4]:X2}";
+                    /*if (portValid)
                     {
                         Logger.LogLine($"Robot arm connected on port {comPort}. Embedded device version: {response[3]:X2}.{response[4]:X2}");
-                    }
+                    }*/
                 }
             }
             catch (Exception)

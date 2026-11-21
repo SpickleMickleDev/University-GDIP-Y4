@@ -56,19 +56,23 @@ namespace ToolSummoner
                 return;
             }
 
-            DebugItems.Visibility = Visibility.Visible;
-            MainScreenItems.Visibility = Visibility.Collapsed;
 
             string selectedPort = PortSelectionComboBox.SelectedItem.ToString();
 
-            /*if (RobotArmController.TestPort(selectedPort))
+            if (RobotArmController.TestPort(selectedPort))
             {
                 Controller_MessageReceived(null, $"Tested port {selectedPort} - PASS");
+                DebugPortErrorLabel.Content = "";
             }
             else
             {
                 Controller_MessageReceived(null, $"Tested port {selectedPort} - FAIL");
-            }*/
+                DebugPortErrorLabel.Content = $"Handshake response not recognised on {selectedPort}";
+                return;
+            }
+
+            DebugItems.Visibility = Visibility.Visible;
+            MainScreenItems.Visibility = Visibility.Collapsed;
             
             debugMessager = new RobotArmController(selectedPort, dtrEnable: true, rtsEnable: true);
             debugMessager.MessageReceived += Controller_MessageReceived;

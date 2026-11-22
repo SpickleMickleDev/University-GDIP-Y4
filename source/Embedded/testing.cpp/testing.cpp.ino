@@ -22,12 +22,12 @@
 const uint8_t LED_SERIAL_IN_INDICATOR_PIN = 1;   // represents serial activity in - RED LED
 const uint8_t LED_SERIAL_OUT_INDICATOR_PIN = 2;   // represents serial activity out - GREEN LED
 
-const uint8_t SERVO_BASE_PWM_PIN         = 39;
-const uint8_t SERVO_SHOULDER_PWM_PIN     = 37;
-const uint8_t SERVO_ELBOW_PWM_PIN        = 35;
-const uint8_t SERVO_WRIST_PWM_PIN        = 33;
-const uint8_t SERVO_WRIST_ROTATE_PWM_PIN = 18;
-const uint8_t SERVO_GRIPPER_PWM_PIN      = 16;
+const uint8_t SERVO_BASE_PWM_PIN         = 4;
+const uint8_t SERVO_SHOULDER_PWM_PIN     = 6;
+const uint8_t SERVO_ELBOW_PWM_PIN        = 8;
+const uint8_t SERVO_WRIST_PWM_PIN        = 10;
+const uint8_t SERVO_WRIST_ROTATE_PWM_PIN = 13;
+const uint8_t SERVO_GRIPPER_PWM_PIN      = 14;
 enum class ServoIndices : uint8_t {
   BASE,
   SHOULDER,

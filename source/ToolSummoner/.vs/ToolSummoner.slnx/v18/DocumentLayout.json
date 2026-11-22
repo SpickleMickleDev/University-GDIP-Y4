@@ -108,7 +108,7 @@
               "RelativeDocumentMoniker": "ToolSummoner\\RobotArmController.cs",
               "ToolTip": "C:\\Users\\micha\\source\\repos\\University-GDIP-Y4\\source\\ToolSummoner\\ToolSummoner\\RobotArmController.cs",
               "RelativeToolTip": "ToolSummoner\\RobotArmController.cs",
-              "ViewState": "AgIAAC4BAAAAAAAAAAAowDoBAAANAAAAAAAAAA==",
+              "ViewState": "AgIAAC4BAAAAAAAAAAAowD0BAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-11-10T14:11:38.47Z",
               "IsPinned": true,
@@ -151,8 +151,7 @@
               "ViewState": "AgIAADMAAAAAAAAAAAAywD0AAAAMAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-11-20T20:55:20.571Z",
-              "IsPinned": true,
-              "EditorCaption": ""
+              "IsPinned": true
             },
             {
               "$type": "Document",
